@@ -25,11 +25,15 @@ $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 $action = New-ScheduledTaskAction -Execute $powerShellPath -Argument $arguments `
     -WorkingDirectory (Split-Path -Parent $PSScriptRoot)
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $identity
+# Self-heal: re-check every 15 minutes so a killed supervisor restarts without a new sign-in.
+# MultipleInstances IgnoreNew makes this a no-op while the tunnel is already running.
+$repeatTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date).Date `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
 $principal = New-ScheduledTaskPrincipal -UserId $identity -LogonType Interactive -RunLevel Limited
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) `
     -MultipleInstances IgnoreNew -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) `
     -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal `
+Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger, $repeatTrigger -Principal $principal `
     -Settings $settings -Description 'User-scoped, localhost-only UAT SSH tunnel with automatic reconnect.' `
     -Force | Out-Null
 Write-Output "Installed $taskName. Start with: Start-ScheduledTask -TaskName $taskName"
