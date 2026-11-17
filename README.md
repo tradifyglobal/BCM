@@ -44,7 +44,13 @@ amendment action, saving and reloading version 1.1. Approval of the initial fixt
 was performed by the workflow API, not by clicking through all approval stages.
 No synthetic plans or recipients were added to UAT. UAT checks confirmed the new
 fields/actions, working dashboard, stylesheet responses, realtime connection and
-health. The running backend/frontend match image `continuity360:bcp-versions-20261116`.
+health. The running backend/frontend match image `continuity360:phase1-20261117`,
+which contains every in-place UAT hot-fix (schema reason field, scale pickers and
+risk matrix, versioned asset URLs, Department View, Report Centre, the PDF report
+engine with document control and the C360 Report Issue DocType). The image deploy
+was preceded by verified database and site-file backups, ran migrations through the
+standard configurator/create-site flow, and post-deploy checks confirmed the image
+identity, demo-data counts, desk pages, asset responses and report generation.
 Full approval-stage browser journeys and a separate upgrade rehearsal remain
 unverified; this is not yet an enterprise-ready BCP module.
 A persistent GeeksOnTap demo dataset was later seeded into UAT at the customer's
@@ -52,9 +58,8 @@ request (departments, employees, risks, BIA, approved DR and BCP plans, a tracke
 distribution and compliance controls), with a configured outgoing/incoming email
 account. Demo seeding surfaced a defect: the stored distribution recipient reason
 was a 140-character Data field, but combined eligibility reasons can exceed that.
-The field is now Small Text in `schema.py`. The fix was applied to the UAT DocType
-metadata and the container's `schema.py` was updated in place; the change must ship
-in the next image build, since the deployed image layer still has the old definition.
+The field is now Small Text in `schema.py`. The fix was first applied in place to the
+UAT DocType metadata and container and now ships in image `continuity360:phase1-20261117`.
 A UAT backup was restored into a separate disposable stack; its 14
 Continuity360 tables matched UAT at comparison time (one company record and no other
 domain records). The file archives contained no user files, so file-content restoration
@@ -150,8 +155,8 @@ public and private file contents. This is not a production-ready deployment.
   risks, residual assessments and BIA impact dimensions, and preset duration pickers
   for RTO/RPO/MTPD. Clicking sets the underlying field; typed values remain supported,
   presets highlight only on exact matches, and submitted or read-only documents show
-  the scales disabled. Implemented in `scale_picker.js`; deployed to UAT by in-place
-  copy, so it must ship in the next image build.
+  the scales disabled. Implemented in `scale_picker.js`; initially hot-deployed to UAT
+  and now shipped in image `continuity360:phase1-20261117`.
 - Top dropdown navigation, left sidebar or both; preference saved per browser/user.
 - Department View page (Organisation menu): choose a department from a dropdown and see
   its BIA processes, impact assessments, risks, residual assessments, treatments, BCPs,
@@ -297,6 +302,12 @@ Both archive integrity checks passed; this release's backup has not been restore
 in a separate drill. The previous image is retained as
 `continuity360:rollback-bcp-versions-20261116`. Image rollback alone does not undo
 database migrations.
+
+The phase1 image release (`continuity360:phase1-20261117`, built from commit source
+via `git archive`) has pre-migration database and site-file backups under
+`/home/zubair/continuity360-dev/backups/phase1-20261117T050947Z` with verified
+checksums. The replaced image is retained as `continuity360:rollback-phase1-20261117`.
+This release's backup has not been restored in a separate drill.
 
 ## Testing strategy
 
