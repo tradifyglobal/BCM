@@ -44,10 +44,11 @@ amendment action, saving and reloading version 1.1. Approval of the initial fixt
 was performed by the workflow API, not by clicking through all approval stages.
 No synthetic plans or recipients were added to UAT. UAT checks confirmed the new
 fields/actions, working dashboard, stylesheet responses, realtime connection and
-health. The running backend/frontend match image `continuity360:phase1-20261117`,
+health. The running backend/frontend match image `continuity360:phase1-20261117b`,
 which contains every in-place UAT hot-fix (schema reason field, scale pickers and
 risk matrix, versioned asset URLs, Department View, Report Centre, the PDF report
-engine with document control and the C360 Report Issue DocType). The image deploy
+engine with document control and the C360 Report Issue DocType) plus the Testing &
+Exercises module that completes the Phase 1 functional scope. The image deploy
 was preceded by verified database and site-file backups, ran migrations through the
 standard configurator/create-site flow, and post-deploy checks confirmed the image
 identity, demo-data counts, desk pages, asset responses and report generation.
@@ -321,11 +322,14 @@ in a separate drill. The previous image is retained as
 `continuity360:rollback-bcp-versions-20261116`. Image rollback alone does not undo
 database migrations.
 
-The phase1 image release (`continuity360:phase1-20261117`, built from commit source
-via `git archive`) has pre-migration database and site-file backups under
-`/home/zubair/continuity360-dev/backups/phase1-20261117T050947Z` with verified
-checksums. The replaced image is retained as `continuity360:rollback-phase1-20261117`.
-This release's backup has not been restored in a separate drill.
+The phase1 image releases (`continuity360:phase1-20261117` and
+`continuity360:phase1-20261117b` with Testing & Exercises, both built from committed
+source via `git archive`) have pre-migration database and site-file backups under
+`/home/zubair/continuity360-dev/backups/phase1-20261117T050947Z` and
+`/home/zubair/continuity360-dev/backups/phase1b-20261117T201822Z` with verified
+checksums. The replaced images are retained as `continuity360:rollback-phase1-20261117`
+and `continuity360:rollback-phase1-20261117b`.
+These releases' backups have not been restored in a separate drill.
 
 ## Testing strategy
 
