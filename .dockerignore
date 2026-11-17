@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+ssh_config
+.secrets
+**/__pycache__
+.venv
+sites
+logs
+**/*.pem
+**/*.key

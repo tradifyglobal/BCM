@@ -1,0 +1,154 @@
+name: continuity360-dev
+
+x-app: &app
+  image: continuity360:dev
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+  networks: [continuity360]
+  restart: unless-stopped
+
+services:
+  backend:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-H", "Host: continuity360.localhost", "http://127.0.0.1:8000/api/method/ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
+    mem_limit: 1400m
+
+  configurator:
+    <<: *app
+    restart: "no"
+    entrypoint: ["/home/frappe/frappe-bench/env/bin/python", "apps/continuity360/docker/setup.py", "configure"]
+    depends_on:
+      db: {condition: service_healthy}
+      redis-cache: {condition: service_healthy}
+      redis-queue: {condition: service_healthy}
+
+  create-site:
+    <<: *app
+    # Read root-owned Compose secrets, then setup.py drops privileges before site setup.
+    user: "0:0"
+    restart: "no"
+    entrypoint: ["/home/frappe/frappe-bench/env/bin/python", "apps/continuity360/docker/setup.py", "create-site"]
+    secrets: [db_root_password, admin_password]
+    depends_on:
+      configurator: {condition: service_completed_successfully}
+
+  frontend:
+    <<: *app
+    command: ["nginx-entrypoint.sh"]
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: continuity360.localhost
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: "120"
+      CLIENT_MAX_BODY_SIZE: 20m
+    ports: ["127.0.0.1:18080:8080"]
+    depends_on:
+      backend: {condition: service_healthy}
+      websocket: {condition: service_started}
+    mem_limit: 192m
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/method/ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  websocket:
+    <<: *app
+    command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+    depends_on:
+      create-site: {condition: service_completed_successfully}
+    mem_limit: 256m
+
+  worker:
+    <<: *app
+    command: ["bench", "worker", "--queue", "short,default,long"]
+    depends_on:
+      create-site: {condition: service_completed_successfully}
+    mem_limit: 768m
+
+  scheduler:
+    <<: *app
+    command: ["bench", "schedule"]
+    depends_on:
+      create-site: {condition: service_completed_successfully}
+    mem_limit: 256m
+
+  db:
+    image: mariadb:11.8.6
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    secrets: [db_root_password]
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --innodb-snapshot-isolation=OFF
+      - --innodb-buffer-pool-size=256M
+    volumes: [database:/var/lib/mysql]
+    networks: [continuity360]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+    mem_limit: 768m
+
+  redis-cache:
+    image: redis:7.2.7-alpine
+    restart: unless-stopped
+    networks: [continuity360]
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    mem_limit: 192m
+
+  redis-queue:
+    image: redis:7.2.7-alpine
+    restart: unless-stopped
+    networks: [continuity360]
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    volumes: [queue:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    mem_limit: 192m
+
+secrets:
+  db_root_password:
+    file: .secrets/db_root_password
+  admin_password:
+    file: .secrets/admin_password
+
+volumes:
+  sites:
+  logs:
+  database:
+  queue:
+
+networks:
+  continuity360:

@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "name": "bcp-dashboard",
+ "page_name": "bcp-dashboard",
+ "title": "BCP Dashboard",
+ "module": "Continuity360",
+ "standard": "Yes",
+ "roles": []
+}

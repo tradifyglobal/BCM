@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "name": "report-centre",
+ "page_name": "report-centre",
+ "title": "Report Centre",
+ "module": "Continuity360",
+ "standard": "Yes",
+ "roles": []
+}

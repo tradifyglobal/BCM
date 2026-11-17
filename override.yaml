@@ -1,0 +1,33 @@
+services:
+  backend:
+    image: continuity360:uat-dashboard-6hPi68
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+  configurator:
+    image: continuity360:uat-dashboard-6hPi68
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+  create-site:
+    image: continuity360:uat-dashboard-6hPi68
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+  frontend:
+    image: continuity360:uat-dashboard-6hPi68
+    ports: []
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+  websocket:
+    image: continuity360:uat-dashboard-6hPi68
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+  worker:
+    image: continuity360:uat-dashboard-6hPi68
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+  scheduler:
+    image: continuity360:uat-dashboard-6hPi68
+    volumes:
+      - ./continuity360:/home/frappe/frappe-bench/apps/continuity360/continuity360:ro
+networks:
+  continuity360:
+    internal: true

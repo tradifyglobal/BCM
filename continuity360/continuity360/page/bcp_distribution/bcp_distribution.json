@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "name": "bcp-distribution",
+ "page_name": "bcp-distribution",
+ "title": "BCP Plan Distribution",
+ "module": "Continuity360",
+ "standard": "Yes",
+ "roles": []
+}

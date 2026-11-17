@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "name": "department-view",
+ "page_name": "department-view",
+ "title": "Department View",
+ "module": "Continuity360",
+ "standard": "Yes",
+ "roles": []
+}

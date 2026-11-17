@@ -1,0 +1,20 @@
+[build-system]
+requires = ["flit_core>=3.9,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "continuity360"
+authors = [{ name = "Continuity360" }]
+description = "Business continuity management and recovery intelligence for Frappe"
+requires-python = ">=3.14,<3.15"
+dynamic = ["version"]
+
+[tool.flit.module]
+name = "continuity360"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
