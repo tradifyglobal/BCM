@@ -25,6 +25,9 @@
         { label: "Disaster Recovery", items: [
             ["Recovery Strategies", "C360 Recovery Strategy"], ["Recovery Plans", "C360 Recovery Plan"],
         ] },
+        { label: "Testing & Exercises", items: [
+            ["Exercises", "C360 BC Exercise"], ["Corrective Actions", "C360 Corrective Action"],
+        ] },
         { label: "Compliance", items: [["Control Register", "C360 Compliance Control"]] },
         { label: "Reports", items: [
             ["Report Centre", null, "report-centre"],

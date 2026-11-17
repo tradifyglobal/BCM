@@ -1,7 +1,14 @@
 import unittest
 from datetime import date, timedelta
 
-from continuity360.rules import date_order, next_bcp_version, recovery_objectives, review_reminder_slot, risk_score
+from continuity360.rules import (
+    date_order,
+    exercise_completion,
+    next_bcp_version,
+    recovery_objectives,
+    review_reminder_slot,
+    risk_score,
+)
 
 
 class RiskTests(unittest.TestCase):
@@ -66,3 +73,28 @@ class RecoveryTests(unittest.TestCase):
         ):
             with self.subTest(days=days):
                 self.assertEqual(review_reminder_slot(today + timedelta(days=days), today), expected)
+
+
+class ExerciseTests(unittest.TestCase):
+    COMPLETE = (date(2026, 11, 17), "Effective", "Recovered within target.", ["Met", "Partially Met"])
+
+    def test_completed_exercise_requires_full_evidence(self):
+        exercise_completion("Completed", *self.COMPLETE)
+
+    def test_incomplete_evidence_blocks_completion(self):
+        conducted, result, summary, outcomes = self.COMPLETE
+        for case in (
+            (None, result, summary, outcomes),
+            (conducted, "", summary, outcomes),
+            (conducted, result, "  ", outcomes),
+            (conducted, result, summary, []),
+            (conducted, result, summary, ["Met", "Not Assessed"]),
+            (conducted, result, summary, ["Met", None]),
+        ):
+            with self.subTest(case=case), self.assertRaises(ValueError):
+                exercise_completion("Completed", *case)
+
+    def test_other_statuses_do_not_require_evidence(self):
+        for status in ("Planned", "In Progress", "Cancelled"):
+            with self.subTest(status=status):
+                exercise_completion(status, None, None, None, [])

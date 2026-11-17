@@ -77,8 +77,8 @@ public and private file contents. This is not a production-ready deployment.
   Named authors, manager reviewers, BCM reviewers and executive approvers use separate
   review stages. Four distinct users are required and the review date must be no more
   than one year after approval. A BCP overview counts visible plans, approval-stage
-  plans and upcoming or overdue reviews; testing, corrective-action and expiry counts
-  are not yet available. Role and company permissions still apply to links.
+  plans, upcoming or overdue reviews, plans tested and completed exercises over the
+  last 12 months, and open corrective actions. Role and company permissions still apply to links.
   At approval, a permission-filtered snapshot preserves linked records and contact
   details; normal links continue to show current records. Changes to linked records
   during review require the plan to return to draft and be reviewed again. The
@@ -112,10 +112,26 @@ public and private file contents. This is not a production-ready deployment.
   approval capture date, requesting user/time and current status; retired plans are
   marked historical. Offline copies are uncontrolled and cannot be revoked.
   The disposable browser verified both download formats and recipient acknowledgement.
-  Testing/corrective-action integration remains unimplemented. Assign the BCP
+  Assign the BCP
   Author, BCP Manager Reviewer, BCM Administrator and BCP Executive Approver roles to
   the corresponding named users; the assigned author also needs access to any recovery
   plans they link.
+- Testing & Exercises: tabletop exercises, walkthroughs, simulations, DR drills and
+  full interruption tests, each with a scenario, objectives with assessed outcomes,
+  participants, overall result, achieved recovery time, results summary and lessons
+  learned. Completing an exercise requires the conducted date, an overall result, a
+  results summary and an assessed outcome for every objective. Corrective actions link
+  to an exercise with priority, owner, due date and status; completion requires
+  recorded evidence and stamps the completion date. Exercises may link a business
+  continuity plan and/or a recovery plan from the same company. Editable by Risk
+  Managers, IT Managers and BCP Authors; readable by auditors and BCP reviewers. The
+  BCP dashboard shows plans tested and completed exercises over the last 12 months and
+  open corrective actions, and the Report Centre includes a Testing and Exercise
+  Report plus a Testing and Exercises chapter in the combined report. Verified on UAT:
+  13 domain tests (including exercise completion rules), dashboard counts, navigation,
+  list rendering, report PDFs and the server-side completion guard. GeeksOnTap demo
+  data includes two completed exercises, one planned walkthrough and two corrective
+  actions (one open, one completed with evidence).
 - Governance: BCM Administrator, Risk Manager, IT Manager, Auditor and Employee roles.
 - Approval: Draft -> In Review -> Approved -> Retired. Approval requires a different person
   from the author. Approved plans are submitted documents; revisions require amendment.
@@ -124,13 +140,15 @@ public and private file contents. This is not a production-ready deployment.
   status, owners and evidence references; no standards content is supplied.
 - Permission-aware dashboard with risk-rating and process-criticality charts, risk
   heatmap and management PDF endpoint. Charts use visible records, not sample data.
-- Report Centre page with a single department selector that scopes every report, five
-  detailed server-generated PDF reports (BIA, risk assessment, BCP, DR and compliance)
-  and a combined Business Continuity Management report with numbered chapters covering
-  all five areas. Every PDF page carries the report name and department scope in the
+- Report Centre page with a single department selector that scopes every report, six
+  detailed server-generated PDF reports (BIA, risk assessment, BCP, DR, testing and
+  compliance) and a combined Business Continuity Management report with numbered
+  chapters covering all six areas. Every PDF page carries the report name and department scope in the
   header and "Page N of M" in the footer. Risk and DR reports scope through the
   department's business processes (risks without a linked process are excluded when a
-  department is selected); BCP scopes by covered business units; compliance controls
+  department is selected); BCP scopes by covered business units; the testing report
+  scopes to exercises whose plan covers the department or recovers one of its
+  processes; compliance controls
   are organisation-wide and are labelled accordingly. Reports include only records
   visible to the requesting user, render rich text as plain text and are labelled as
   uncontrolled copies. Reports are branded with the customer's company name when the

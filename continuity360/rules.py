@@ -52,6 +52,22 @@ def date_order(start: date, end: date, label: str) -> None:
         raise ValueError(f"{label} must not be before its start date.")
 
 
+def exercise_completion(status: str, conducted_on: object, result: object, summary: object,
+                        objective_outcomes: list) -> None:
+    """A completed exercise must carry its evidence; other statuses are unrestricted."""
+    if status != "Completed":
+        return
+    if not conducted_on:
+        raise ValueError("Record the conducted date before completing an exercise.")
+    if not result:
+        raise ValueError("Record the overall result before completing an exercise.")
+    if not str(summary or "").strip():
+        raise ValueError("Record a results summary before completing an exercise.")
+    if not objective_outcomes or any(
+            outcome in (None, "", "Not Assessed") for outcome in objective_outcomes):
+        raise ValueError("Assess every objective before completing an exercise.")
+
+
 def review_reminder_slot(review_date: date, today: date) -> str | None:
     days = (review_date - today).days
     if days > 30:

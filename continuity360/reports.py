@@ -61,6 +61,12 @@ STATUS_COLORS = {
     "Retired": ("#6c7a89", "#fff"),
     "Implemented": ("#2f9e44", "#fff"), "Not Assessed": ("#6c7a89", "#fff"),
     "Not Applicable": ("#9aa7b5", "#fff"),
+    "Cancelled": ("#9aa7b5", "#fff"),
+    "Effective": ("#2f9e44", "#fff"),
+    "Effective With Observations": ("#f3c300", "#4a3b00"),
+    "Needs Improvement": ("#f08c00", "#fff"), "Ineffective": ("#d9342b", "#fff"),
+    "Met": ("#2f9e44", "#fff"), "Partially Met": ("#f3c300", "#4a3b00"),
+    "Not Met": ("#d9342b", "#fff"),
 }
 
 
@@ -563,6 +569,92 @@ def _dr_body(department: str | None) -> str:
     return body
 
 
+def _testing_body(department: str | None) -> str:
+    exercises = _docs("C360 BC Exercise", order_by="scheduled_date desc")
+    if exercises is None:
+        frappe.throw(_("Your role cannot view exercises."), frappe.PermissionError)
+    bcp_titles = _titles("C360 Business Continuity Plan", "plan_title")
+    recovery_titles = _titles("C360 Recovery Plan", "plan_title")
+    body = ""
+    if department:
+        scope_processes = _department_processes(department)
+        recovery_rows = _rows("C360 Recovery Plan", fields=["name"], filters={
+            "business_process": ["in", scope_processes or [""]]}) or []
+        scoped_recovery = {row.name for row in recovery_rows}
+        scoped_bcps = set(frappe.get_all(
+            "C360 BCP Department Link", pluck="parent",
+            filters={"department": department, "parenttype": "C360 Business Continuity Plan"}))
+        exercises = [e for e in exercises if e.business_continuity_plan in scoped_bcps
+                     or e.recovery_plan in scoped_recovery]
+        body += "<p>" + escape_html(_(
+            "Scoped to exercises whose plan covers this department or recovers one of its "
+            "business processes; exercises without a linked plan are excluded.")) + "</p>"
+    counts: dict[tuple, int] = {}
+    for exercise in exercises:
+        key = (exercise.exercise_type, exercise.status)
+        counts[key] = counts.get(key, 0) + 1
+    body += "<h2>" + escape_html(_("Exercise summary")) + "</h2>" + _table(
+        [_("Exercise type"), _("Status"), _("Exercises")],
+        [[kind, _status_badge(status), total] for (kind, status), total in sorted(counts.items())])
+    body += "<h2>" + escape_html(_("Exercise register")) + "</h2>" + _table(
+        [_("Exercise"), _("Type"), _("Status"), _("Scheduled"), _("Conducted"), _("Result"),
+         _("Facilitator")],
+        [[e.exercise_name, e.exercise_type, _status_badge(e.status), e.scheduled_date,
+          e.actual_date or "", _status_badge(e.result), _user(e.responsible_user)]
+         for e in exercises])
+    actions = _rows("C360 Corrective Action", filters={
+        "exercise": ["in", [e.name for e in exercises] or [""]],
+    }, fields=["exercise", "action_title", "priority", "status", "responsible_user", "due_date",
+               "completed_on", "completion_evidence", "description"], order_by="due_date asc")
+    by_exercise: dict[str, list] = {}
+    for row in actions or []:
+        by_exercise.setdefault(row.exercise, []).append(row)
+    body += "<h2>" + escape_html(_("Exercise details and outcomes")) + "</h2>"
+    for exercise in exercises:
+        body += f"<div class='detail'><h3>{escape_html(exercise.exercise_name)}</h3>"
+        body += _kv([
+            (_("Type"), exercise.exercise_type),
+            (_("Status"), exercise.status),
+            (_("Scenario"), _text(exercise.scenario)),
+            (_("Business continuity plan"), bcp_titles.get(
+                exercise.business_continuity_plan, exercise.business_continuity_plan or "")),
+            (_("Recovery plan"), recovery_titles.get(
+                exercise.recovery_plan, exercise.recovery_plan or "")),
+            (_("Facilitator"), _user(exercise.responsible_user)),
+            (_("Conducted on"), exercise.actual_date),
+            (_("Achieved recovery time"), _minutes(exercise.achieved_rto_minutes)),
+            (_("Results summary"), _text(exercise.summary)),
+            (_("Lessons learned"), _text(exercise.lessons_learned)),
+            (_("Entered by"), _user(exercise.owner)),
+            (_("Last updated by"), _("{0} on {1}").format(_user(exercise.modified_by),
+                                                          _when(exercise.modified))),
+        ])
+        if exercise.objectives:
+            body += _table([_("Objective"), _("Outcome"), _("Notes")],
+                           [[_text(o.objective), _status_badge(o.outcome), _text(o.notes)]
+                            for o in exercise.objectives])
+        if exercise.participants:
+            body += _table([_("Participant"), _("Role in exercise"), _("Attended")],
+                           [[_user(p.participant), p.exercise_role,
+                             _badge(_("Yes"), "#2f9e44") if p.attended
+                             else _badge(_("No"), "#d9342b")] for p in exercise.participants])
+        rows = by_exercise.get(exercise.name, [])
+        if rows:
+            body += "<h3>" + escape_html(_("Corrective actions")) + "</h3>"
+            body += _table(
+                [_("Action"), _("Priority"), _("Status"), _("Owner"), _("Due"), _("Completed"),
+                 _("What must change"), _("Completion evidence")],
+                [[a.action_title, _rating_badge(a.priority), _status_badge(a.status),
+                  _user(a.responsible_user), a.due_date, a.completed_on or "",
+                  _text(a.description), _text(a.completion_evidence)] for a in rows])
+        elif actions is None:
+            body += "<p>" + escape_html(_("Corrective actions are not visible to your role.")) + "</p>"
+        body += "</div>"
+    if not exercises:
+        body += "<p>" + escape_html(_("No exercises recorded in this scope yet.")) + "</p>"
+    return body
+
+
 def _compliance_body(department: str | None) -> str:
     controls = _docs("C360 Compliance Control", order_by="framework asc, control_reference asc")
     if controls is None:
@@ -614,6 +706,11 @@ DR_CONTENTS = (
     (_("Document control and approvals"), ()),
     (_("Recovery procedures"), (_("Contacts and step-by-step instructions"),)),
 )
+TESTING_CONTENTS = (
+    (_("Exercise summary"), ()),
+    (_("Exercise register"), ()),
+    (_("Exercise details and outcomes"), (_("Objectives, participants and corrective actions"),)),
+)
 COMPLIANCE_CONTENTS = (
     (_("Self-assessed status summary"), ()),
     (_("Controls by framework"), ()),
@@ -653,6 +750,14 @@ def dr_report(department: str | None = None) -> None:
 
 
 @frappe.whitelist()
+def testing_report(department: str | None = None) -> None:
+    _authorize()
+    scope = _scope(department)
+    _serve("testing-report", _("Testing and Exercise Report"), scope, _testing_body(department),
+           TESTING_CONTENTS, department)
+
+
+@frappe.whitelist()
 def compliance_report(department: str | None = None) -> None:
     _authorize()
     scope = _scope(department)
@@ -669,6 +774,7 @@ def full_report(department: str | None = None) -> None:
         (_("Risk Assessment"), _risk_body, RISK_CONTENTS),
         (_("Business Continuity Plans"), _bcp_body, BCP_CONTENTS),
         (_("Disaster Recovery"), _dr_body, DR_CONTENTS),
+        (_("Testing and Exercises"), _testing_body, TESTING_CONTENTS),
         (_("Compliance Controls"), _compliance_body, COMPLIANCE_CONTENTS),
     )
     body = ""

@@ -17,6 +17,9 @@ frappe.pages["report-centre"].on_page_load = function (wrapper) {
          description: __("Every plan with scope, strategies, teams, procedures, approvals and acknowledgements.")},
         {method: "dr_report", title: __("Disaster Recovery (DR) Report"),
          description: __("Recovery plans with targets, contacts and step-by-step procedures.")},
+        {method: "testing_report", title: __("Testing and Exercise Report"),
+         description: __("Exercises with scenarios, objectives, participants, results, "
+            + "lessons learned and corrective actions.")},
         {method: "compliance_report", title: __("Compliance Control Report"),
          description: __("Controls by framework with status, owners, evidence and review dates. "
             + "Controls are organisation-wide regardless of the selected department.")},

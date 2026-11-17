@@ -185,6 +185,27 @@ def validate_bcp_procedure(doc, method=None) -> None:
         frappe.throw(_("Add at least one continuity procedure step."))
 
 
+def validate_exercise(doc, method=None) -> None:
+    _same_company(doc, "business_continuity_plan", "C360 Business Continuity Plan")
+    _same_company(doc, "recovery_plan", "C360 Recovery Plan")
+    if not doc.get("objectives"):
+        frappe.throw(_("Add at least one exercise objective."))
+    if doc.achieved_rto_minutes not in (None, ""):
+        _apply(rules.number, doc.achieved_rto_minutes, "Achieved recovery time")
+    _apply(rules.exercise_completion, doc.status, doc.actual_date, doc.result, doc.summary,
+           [row.outcome for row in doc.objectives])
+
+
+def validate_corrective_action(doc, method=None) -> None:
+    _same_company(doc, "exercise", "C360 BC Exercise")
+    if doc.status == "Completed":
+        if not (doc.completion_evidence or "").strip():
+            frappe.throw(_("Record completion evidence before completing a corrective action."))
+        doc.completed_on = doc.completed_on or getdate()
+    else:
+        doc.completed_on = None
+
+
 def _validate_controlled_plan(doc, label) -> None:
     if doc.is_new() and (doc.approval_status != "Draft" or doc.docstatus != 0):
         frappe.throw(_("New plans must begin as drafts."))

@@ -70,6 +70,13 @@ def bcp_overview() -> dict:
     if not frappe.has_permission(doctype, "read"):
         frappe.throw(_("Your role cannot view business continuity plans."), frappe.PermissionError)
     today = nowdate()
+    tested_plans = None
+    if frappe.has_permission("C360 BC Exercise", "read"):
+        tested_plans = len({row.business_continuity_plan for row in frappe.get_list(
+            "C360 BC Exercise",
+            filters={"status": "Completed", "actual_date": [">=", add_days(today, -365)],
+                     "business_continuity_plan": ["is", "set"]},
+            fields=["business_continuity_plan"], page_length=0)})
     return {
         "total": _count(doctype, {}),
         "due_for_review": _count(doctype, {
@@ -79,6 +86,13 @@ def bcp_overview() -> dict:
             "approval_status": ["in", ["Manager Review", "BCM Review", "Executive Approval"]],
         }),
         "overdue_review": _count(doctype, {"docstatus": 1, "review_date": ["<", today]}),
+        "tested_plans": tested_plans,
+        "exercises_completed": _count("C360 BC Exercise", {
+            "status": "Completed", "actual_date": [">=", add_days(today, -365)],
+        }),
+        "open_corrective_actions": _count("C360 Corrective Action", {
+            "status": ["in", ["Open", "In Progress"]],
+        }),
         "as_of": today,
     }
 

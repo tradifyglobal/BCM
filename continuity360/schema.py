@@ -342,6 +342,60 @@ define("C360 Report Issue", [
     field("generated_on", "Generated on", "Datetime", reqd=1),
 ], permissions=[])
 
+define("C360 Exercise Objective", [
+    field("objective", "Objective", "Small Text", reqd=1, in_list_view=1),
+    choice("outcome", "Outcome", "Not Assessed\nMet\nPartially Met\nNot Met",
+           default="Not Assessed", reqd=1, in_list_view=1),
+    field("notes", "Notes", "Small Text"),
+], istable=1, permissions=[])
+
+define("C360 Exercise Participant", [
+    link("participant", "Participant", "User", reqd=1, in_list_view=1),
+    field("exercise_role", "Role in exercise", reqd=1, in_list_view=1),
+    field("attended", "Attended", "Check", default="1", in_list_view=1),
+], istable=1, permissions=[])
+
+define("C360 BC Exercise", [
+    field("exercise_name", "Exercise name", reqd=1, in_list_view=1), company(),
+    choice("exercise_type", "Exercise type",
+           "Tabletop Exercise\nWalkthrough\nSimulation\nDR Drill\nFull Interruption Test",
+           reqd=1, in_list_view=1),
+    owner(),
+    link("business_continuity_plan", "Business continuity plan", "C360 Business Continuity Plan"),
+    link("recovery_plan", "Recovery plan", "C360 Recovery Plan"),
+    choice("status", "Status", "Planned\nIn Progress\nCompleted\nCancelled",
+           default="Planned", reqd=1, in_list_view=1),
+    field("scheduled_date", "Scheduled date", "Date", reqd=1, in_list_view=1),
+    field("actual_date", "Conducted on", "Date"),
+    field("scenario", "Scenario", "Text Editor", reqd=1,
+          description="The disruption this exercise simulates; no live systems are affected."),
+    field("objectives", "Objectives", "Table", options="C360 Exercise Objective", reqd=1),
+    field("participants", "Participants", "Table", options="C360 Exercise Participant"),
+    choice("result", "Overall result",
+           "\nEffective\nEffective With Observations\nNeeds Improvement\nIneffective",
+           in_list_view=1),
+    field("achieved_rto_minutes", "Achieved recovery time (minutes)", "Int",
+          description="Measured time to recover during the exercise, where applicable."),
+    field("summary", "Results summary", "Text Editor"),
+    field("lessons_learned", "Lessons learned", "Text Editor"),
+], title_field="exercise_name", editors=(RISK, IT, BCP_AUTHOR),
+    readers=(AUDITOR, BCP_MANAGER, BCP_EXECUTIVE))
+
+define("C360 Corrective Action", [
+    field("action_title", "Action title", reqd=1, in_list_view=1), company(),
+    link("exercise", "Exercise", "C360 BC Exercise", reqd=1, in_list_view=1),
+    owner(),
+    choice("priority", "Priority", "Low\nMedium\nHigh\nCritical",
+           default="Medium", reqd=1, in_list_view=1),
+    choice("status", "Status", "Open\nIn Progress\nCompleted\nCancelled",
+           default="Open", reqd=1, in_list_view=1),
+    field("description", "What must change", "Text Editor", reqd=1),
+    field("due_date", "Due date", "Date", reqd=1, in_list_view=1),
+    field("completed_on", "Completed on", "Date", read_only=1, no_copy=1),
+    field("completion_evidence", "Completion evidence", "Small Text"),
+], title_field="action_title", editors=(RISK, IT, BCP_AUTHOR),
+    readers=(AUDITOR, BCP_MANAGER, BCP_EXECUTIVE))
+
 # Plan readers do not receive employee/contact-directory access independently.
 for plan_type, editor in (("C360 Recovery Plan", IT), ("C360 Business Continuity Plan", BCP_AUTHOR)):
     for permission in DOCTYPES[plan_type]["permissions"]:
