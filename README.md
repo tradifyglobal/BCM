@@ -44,11 +44,11 @@ amendment action, saving and reloading version 1.1. Approval of the initial fixt
 was performed by the workflow API, not by clicking through all approval stages.
 No synthetic plans or recipients were added to UAT. UAT checks confirmed the new
 fields/actions, working dashboard, stylesheet responses, realtime connection and
-health. The running backend/frontend match image `continuity360:phase1-20261117b`,
+health. The running backend/frontend match image `continuity360:phase1-20261117c`,
 which contains every in-place UAT hot-fix (schema reason field, scale pickers and
 risk matrix, versioned asset URLs, Department View, Report Centre, the PDF report
 engine with document control and the C360 Report Issue DocType) plus the Testing &
-Exercises module that completes the Phase 1 functional scope. The image deploy
+Exercises module and call trees that complete the Phase 1 functional scope. The image deploy
 was preceded by verified database and site-file backups, ran migrations through the
 standard configurator/create-site flow, and post-deploy checks confirmed the image
 identity, demo-data counts, desk pages, asset responses and report generation.
@@ -133,6 +133,20 @@ public and private file contents. This is not a production-ready deployment.
   list rendering, report PDFs and the server-side completion guard. GeeksOnTap demo
   data includes two completed exercises, one planned walkthrough and two corrective
   actions (one open, one completed with evidence).
+- Call trees: emergency notification cascades built from emergency contacts, recording
+  who calls whom, each member's cascade role, and activation criteria and caller
+  instructions. Structural validation always rejects duplicate contacts, self-calls
+  and callers who are not members; setting a tree Active additionally requires at
+  least two members, an initiator and every member reachable from an initiator (no
+  cycles or orphans). The form shows a live indented cascade preview with phone
+  numbers and flags unreachable members. Only Active (completed) call trees print in
+  documents: the BCP report and the combined report include a Call trees section with
+  the cascade hierarchy, roles, responsibilities, phone, email and who each person
+  calls. Trees may link a business continuity plan and/or department and follow that
+  scope in department-filtered reports. Editable by BCP Authors and IT Managers.
+  Verified on UAT: 17 domain tests (4 call-tree structure cases), server-side
+  activation guard, form preview in the browser and PDF rendering. The GeeksOnTap
+  demo includes an Active seven-member cascade linked to the corporate BCP.
 - Governance: BCM Administrator, Risk Manager, IT Manager, Auditor and Employee roles.
 - Approval: Draft -> In Review -> Approved -> Retired. Approval requires a different person
   from the author. Approved plans are submitted documents; revisions require amendment.
@@ -322,13 +336,15 @@ in a separate drill. The previous image is retained as
 `continuity360:rollback-bcp-versions-20261116`. Image rollback alone does not undo
 database migrations.
 
-The phase1 image releases (`continuity360:phase1-20261117` and
-`continuity360:phase1-20261117b` with Testing & Exercises, both built from committed
+The phase1 image releases (`continuity360:phase1-20261117`,
+`continuity360:phase1-20261117b` with Testing & Exercises and
+`continuity360:phase1-20261117c` with call trees, all built from committed
 source via `git archive`) have pre-migration database and site-file backups under
-`/home/zubair/continuity360-dev/backups/phase1-20261117T050947Z` and
-`/home/zubair/continuity360-dev/backups/phase1b-20261117T201822Z` with verified
-checksums. The replaced images are retained as `continuity360:rollback-phase1-20261117`
-and `continuity360:rollback-phase1-20261117b`.
+`/home/zubair/continuity360-dev/backups/phase1-20261117T050947Z`,
+`/home/zubair/continuity360-dev/backups/phase1b-20261117T201822Z` and
+`/home/zubair/continuity360-dev/backups/phase1c-20261118T001940Z` with verified
+checksums. The replaced images are retained as `continuity360:rollback-phase1-20261117`,
+`continuity360:rollback-phase1-20261117b` and `continuity360:rollback-phase1-20261117c`.
 These releases' backups have not been restored in a separate drill.
 
 ## Testing strategy
