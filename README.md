@@ -3,6 +3,38 @@
 Commercial BCM product in development, built as a Frappe application.
 This is the **initial Phase 1 implementation**, not a production-ready SaaS release.
 
+## Roadmap
+
+**Phase 1 (BCM foundation) - functionally complete.** All modules are built, verified
+on UAT and shipped in image `continuity360:phase1-20261117d`: organisation, risk,
+BIA, BCP with versioning/distribution/acknowledgement, disaster recovery, testing &
+exercises with corrective actions, call trees with span-of-control guidance,
+compliance register, dashboards, Department View and the Report Centre with versioned
+professional PDF reports. Remaining Phase 1 work is verification/hardening only:
+full BCP approval browser journey (all four reviewer stages clicked through),
+compliance register create/edit browser journey, real SMTP delivery and reminder
+concurrency, a restore drill of a current release backup, an upgrade rehearsal and
+automated release asset versioning.
+
+**Phase 2 (operational modules) - next.** Planned order and rationale:
+1. Incident Management: incident recording, severity classification, escalation
+   chains, incident timeline, team notifications (reuses Phase 1 email plumbing).
+2. Crisis Management: crisis event coordination, communication plans, stakeholder
+   broadcasts, links from incidents to activated BCPs/DR plans and call trees.
+3. Application & Infrastructure Inventory: applications, servers, databases and
+   dependencies mapped to business processes (joins the existing BIA).
+4. IT Infrastructure Recovery Intelligence (differentiator): inventory of cloud and
+   on-premises systems with simulated outage walkthroughs - incident detected ->
+   impact analysis -> plan activation -> runbooks and RTO/RPO -> validation ->
+   post-incident report. Illustrative workflow only in Phase 2; no live cloud
+   connections.
+
+**Phase 3 (commercial SaaS layer).** Subscription plans (Starter/Professional/
+Enterprise), central tenant administration across Frappe sites, white labelling,
+live API integrations (AWS, Azure, Microsoft 365, monitoring), a verified public
+multi-tenant gateway, browser E2E and registry publishing in CI, concurrency testing,
+an independent security assessment and a slimmer base image without ERPNext.
+
 ### Current verification status
 
 Local checks passed: 7 domain tests, Python syntax, JavaScript syntax, JSON/TOML/YAML
