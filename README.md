@@ -44,11 +44,12 @@ amendment action, saving and reloading version 1.1. Approval of the initial fixt
 was performed by the workflow API, not by clicking through all approval stages.
 No synthetic plans or recipients were added to UAT. UAT checks confirmed the new
 fields/actions, working dashboard, stylesheet responses, realtime connection and
-health. The running backend/frontend match image `continuity360:phase1-20261117c`,
+health. The running backend/frontend match image `continuity360:phase1-20261117d`,
 which contains every in-place UAT hot-fix (schema reason field, scale pickers and
 risk matrix, versioned asset URLs, Department View, Report Centre, the PDF report
 engine with document control and the C360 Report Issue DocType) plus the Testing &
-Exercises module and call trees that complete the Phase 1 functional scope. The image deploy
+Exercises module and call trees with span-of-control warnings that complete the
+Phase 1 functional scope. The image deploy
 was preceded by verified database and site-file backups, ran migrations through the
 standard configurator/create-site flow, and post-deploy checks confirmed the image
 identity, demo-data counts, desk pages, asset responses and report generation.
@@ -146,7 +147,12 @@ public and private file contents. This is not a production-ready deployment.
   scope in department-filtered reports. Editable by BCP Authors and IT Managers.
   Verified on UAT: 17 domain tests (4 call-tree structure cases), server-side
   activation guard, form preview in the browser and PDF rendering. The GeeksOnTap
-  demo includes an Active seven-member cascade linked to the corporate BCP.
+  demo includes an Active seven-member cascade linked to the corporate BCP, plus IT
+  and Finance department call trees whose leads cascade from the corporate tree
+  (the recommended two-level pattern). Callers phoning more than seven people trigger
+  a non-blocking span-of-control warning on save, in the form preview and as a note
+  in printed reports; ISO 22301 clause 7.4 is tool-agnostic about notification
+  methods, so the three-to-seven band is applied as good practice, not compliance.
 - Governance: BCM Administrator, Risk Manager, IT Manager, Auditor and Employee roles.
 - Approval: Draft -> In Review -> Approved -> Retired. Approval requires a different person
   from the author. Approved plans are submitted documents; revisions require amendment.
@@ -337,14 +343,18 @@ in a separate drill. The previous image is retained as
 database migrations.
 
 The phase1 image releases (`continuity360:phase1-20261117`,
-`continuity360:phase1-20261117b` with Testing & Exercises and
-`continuity360:phase1-20261117c` with call trees, all built from committed
-source via `git archive`) have pre-migration database and site-file backups under
+`continuity360:phase1-20261117b` with Testing & Exercises,
+`continuity360:phase1-20261117c` with call trees and
+`continuity360:phase1-20261117d` with span-of-control warnings and department call
+trees, all built from committed source via `git archive`) have pre-migration database
+and site-file backups under
 `/home/zubair/continuity360-dev/backups/phase1-20261117T050947Z`,
-`/home/zubair/continuity360-dev/backups/phase1b-20261117T201822Z` and
-`/home/zubair/continuity360-dev/backups/phase1c-20261118T001940Z` with verified
-checksums. The replaced images are retained as `continuity360:rollback-phase1-20261117`,
-`continuity360:rollback-phase1-20261117b` and `continuity360:rollback-phase1-20261117c`.
+`/home/zubair/continuity360-dev/backups/phase1b-20261117T201822Z`,
+`/home/zubair/continuity360-dev/backups/phase1c-20261118T001940Z` and
+`/home/zubair/continuity360-dev/backups/phase1d-20261118T003117Z` with verified
+checksums. The replaced images are retained as rollback-tagged copies
+(`continuity360:rollback-phase1-20261117` through
+`continuity360:rollback-phase1-20261117d`).
 These releases' backups have not been restored in a separate drill.
 
 ## Testing strategy
