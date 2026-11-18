@@ -2,6 +2,7 @@ import unittest
 from datetime import date, timedelta
 
 from continuity360.rules import (
+    call_tree_span,
     call_tree_structure,
     date_order,
     exercise_completion,
@@ -129,3 +130,13 @@ class CallTreeTests(unittest.TestCase):
         ):
             with self.subTest(members=members), self.assertRaises(ValueError):
                 call_tree_structure(members, True)
+
+    def test_span_of_control_flags_only_overloaded_callers(self):
+        seven = [("root", None)] + [(f"m{i}", "root") for i in range(7)]
+        self.assertEqual(call_tree_span(seven), [])
+        eight = [("root", None)] + [(f"m{i}", "root") for i in range(8)]
+        self.assertEqual(call_tree_span(eight), [("root", 8)])
+
+    def test_span_ignores_self_calls_and_unknown_callers(self):
+        self.assertEqual(call_tree_span(
+            [("a", "a")] + [(f"m{i}", "ghost") for i in range(9)]), [])

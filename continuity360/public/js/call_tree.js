@@ -45,6 +45,13 @@
         }
         let html = `<h5 style="margin:4px 0 8px">${esc(__("Cascade preview"))}</h5>`;
         roots.forEach((row) => { html += branch(row, 0); });
+        const overloaded = Object.entries(children).filter(([, rows]) => rows.length > 7);
+        if (overloaded.length) {
+            html += `<p class="text-warning" style="margin-top:8px">&#9888; ${esc(__(
+                "Span of control:"))} ${overloaded.map(([caller, rows]) =>
+                `${esc((names[caller] || {}).contact_name || caller)} ${esc(__("calls"))} ${rows.length}`)
+                .join(", ")} — ${esc(__("good practice is three to seven per caller."))}</p>`;
+        }
         const unreachable = members.filter((row) => !seen.has(row.contact));
         if (unreachable.length) {
             html += `<p class="text-danger" style="margin-top:8px">${esc(__(

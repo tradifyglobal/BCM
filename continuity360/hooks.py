@@ -6,7 +6,7 @@ app_license = "Proprietary"
 app_home = "/desk/continuity360"
 
 # The version query forces browsers to refetch these unversioned assets after a release.
-ASSET_VERSION = "20261117-8"
+ASSET_VERSION = "20261117-9"
 app_include_js = [
     f"/assets/continuity360/js/continuity360.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/bcp_plan.js?v={ASSET_VERSION}",

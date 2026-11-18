@@ -583,6 +583,16 @@ def _call_tree_section(plans, department: str | None) -> str:
             walk(root, 0)
         body += _table([_("Cascade"), _("Role in cascade"), _("Responsibility"), _("Phone"),
                         _("Email"), _("Calls")], rows)
+        from continuity360 import rules
+        span = rules.call_tree_span([(row.contact, row.called_by or None)
+                                     for row in tree.members])
+        if span:
+            noted = "; ".join(_("{0} calls {1} people").format(
+                contact_meta.get(caller, frappe._dict()).get("contact_name") or caller, count)
+                for caller, count in span)
+            body += ("<p class='scope-note'>" + escape_html(_(
+                "Span-of-control note: {0}. Good practice is three to seven calls per "
+                "person; consider a department-level call tree.").format(noted)) + "</p>")
         body += "</div>"
     return body
 

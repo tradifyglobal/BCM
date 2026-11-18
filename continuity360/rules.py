@@ -85,6 +85,16 @@ def call_tree_structure(members: list, require_complete: bool) -> None:
                          "initiator; remove circular or orphaned 'called by' entries.")
 
 
+def call_tree_span(members: list, limit: int = 7) -> list:
+    """Callers phoning more than `limit` people; good practice is three to seven per caller."""
+    known = {contact for contact, _caller in members}
+    counts: dict = {}
+    for contact, caller in members:
+        if caller in known and caller != contact:
+            counts[caller] = counts.get(caller, 0) + 1
+    return sorted((caller, count) for caller, count in counts.items() if count > limit)
+
+
 def exercise_completion(status: str, conducted_on: object, result: object, summary: object,
                         objective_outcomes: list) -> None:
     """A completed exercise must carry its evidence; other statuses are unrestricted."""

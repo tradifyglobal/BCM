@@ -210,9 +210,15 @@ def validate_call_tree(doc, method=None) -> None:
     _same_company(doc, "business_continuity_plan", "C360 Business Continuity Plan")
     _same_company(doc, "department", "C360 Department")
     _validate_company_rows(doc, "members", "contact", "C360 Emergency Contact")
-    _apply(rules.call_tree_structure,
-           [(row.contact, row.called_by or None) for row in doc.members],
-           doc.status == "Active")
+    pairs = [(row.contact, row.called_by or None) for row in doc.members]
+    _apply(rules.call_tree_structure, pairs, doc.status == "Active")
+    # Span of control is good practice (3-7 calls per person), so warn without blocking.
+    for caller, count in rules.call_tree_span(pairs):
+        display = frappe.db.get_value("C360 Emergency Contact", caller, "contact_name") or caller
+        frappe.msgprint(
+            _("{0} calls {1} people; good practice is three to seven per caller. "
+              "Consider a department-level call tree.").format(display, count),
+            indicator="orange", alert=True)
 
 
 def _validate_controlled_plan(doc, label) -> None:
