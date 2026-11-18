@@ -6,11 +6,12 @@ app_license = "Proprietary"
 app_home = "/desk/continuity360"
 
 # The version query forces browsers to refetch these unversioned assets after a release.
-ASSET_VERSION = "20261117-7"
+ASSET_VERSION = "20261117-8"
 app_include_js = [
     f"/assets/continuity360/js/continuity360.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/bcp_plan.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/scale_picker.js?v={ASSET_VERSION}",
+    f"/assets/continuity360/js/call_tree.js?v={ASSET_VERSION}",
 ]
 app_include_css = [f"/assets/continuity360/css/continuity360.css?v={ASSET_VERSION}"]
 
@@ -37,6 +38,7 @@ doc_events = {
     "C360 BCP Procedure": {"validate": "continuity360.validation.validate_bcp_procedure"},
     "C360 BC Exercise": {"validate": "continuity360.validation.validate_exercise"},
     "C360 Corrective Action": {"validate": "continuity360.validation.validate_corrective_action"},
+    "C360 Call Tree": {"validate": "continuity360.validation.validate_call_tree"},
     "C360 Department": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Employee": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Location": {"validate": "continuity360.validation.validate_company_links"},

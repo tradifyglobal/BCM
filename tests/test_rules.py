@@ -2,6 +2,7 @@ import unittest
 from datetime import date, timedelta
 
 from continuity360.rules import (
+    call_tree_structure,
     date_order,
     exercise_completion,
     next_bcp_version,
@@ -98,3 +99,33 @@ class ExerciseTests(unittest.TestCase):
         for status in ("Planned", "In Progress", "Cancelled"):
             with self.subTest(status=status):
                 exercise_completion(status, None, None, None, [])
+
+
+class CallTreeTests(unittest.TestCase):
+    def test_complete_cascade_is_accepted(self):
+        call_tree_structure(
+            [("bcm", None), ("exec", "bcm"), ("it", "bcm"), ("vendor", "it")], True)
+
+    def test_draft_allows_partial_cascade(self):
+        call_tree_structure([("bcm", None)], False)
+        call_tree_structure([("exec", "bcm"), ("bcm", None)], False)
+
+    def test_structural_defects_always_rejected(self):
+        for members in (
+            [("bcm", None), ("bcm", None)],          # duplicate contact
+            [("bcm", "bcm")],                        # calls themselves
+            [("exec", "ghost"), ("bcm", None)],      # caller is not a member
+        ):
+            for complete in (False, True):
+                with self.subTest(members=members, complete=complete), \
+                        self.assertRaises(ValueError):
+                    call_tree_structure(members, complete)
+
+    def test_activation_requires_reachable_members(self):
+        for members in (
+            [("bcm", None)],                                      # too small
+            [("a", "b"), ("b", "a")],                             # no initiator (cycle)
+            [("bcm", None), ("a", "b"), ("b", "a")],              # orphaned cycle
+        ):
+            with self.subTest(members=members), self.assertRaises(ValueError):
+                call_tree_structure(members, True)

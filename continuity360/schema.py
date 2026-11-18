@@ -381,6 +381,27 @@ define("C360 BC Exercise", [
 ], title_field="exercise_name", editors=(RISK, IT, BCP_AUTHOR),
     readers=(AUDITOR, BCP_MANAGER, BCP_EXECUTIVE))
 
+define("C360 Call Tree Member", [
+    link("contact", "Contact", "C360 Emergency Contact", reqd=1, in_list_view=1),
+    link("called_by", "Called by", "C360 Emergency Contact", in_list_view=1,
+         description="Leave empty for the person who starts the cascade."),
+    field("tree_role", "Role in the cascade", in_list_view=1),
+], istable=1, permissions=[])
+
+define("C360 Call Tree", [
+    field("tree_name", "Call tree name", reqd=1, in_list_view=1), company(), owner(),
+    link("business_continuity_plan", "Business continuity plan", "C360 Business Continuity Plan"),
+    link("department", "Department", "C360 Department"),
+    choice("status", "Status", "Draft\nActive\nRetired", default="Draft", reqd=1, in_list_view=1,
+           description="Only Active call trees are printed in reports. Activation requires a "
+                       "complete cascade: one or more initiators and every member reachable."),
+    field("activation_criteria", "When to activate", "Small Text", reqd=1),
+    field("instructions", "Caller instructions", "Small Text",
+          description="What each caller must tell the people they phone."),
+    field("members", "Cascade members", "Table", options="C360 Call Tree Member", reqd=1),
+], title_field="tree_name", editors=(BCP_AUTHOR, IT),
+    readers=(BCP_MANAGER, BCP_EXECUTIVE, AUDITOR))
+
 define("C360 Corrective Action", [
     field("action_title", "Action title", reqd=1, in_list_view=1), company(),
     link("exercise", "Exercise", "C360 BC Exercise", reqd=1, in_list_view=1),

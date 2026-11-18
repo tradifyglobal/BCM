@@ -466,6 +466,7 @@ def _bcp_body(department: str | None) -> str:
         [[p.plan_title, p.plan_version, _user(p.responsible_user), _user(p.manager_reviewer),
           _user(p.bcm_reviewer), _user(p.executive_approver), _user(p.approved_by),
           _when(p.approved_on)] for p in plans])
+    body += "<h2>" + escape_html(_("Call trees")) + "</h2>" + _call_tree_section(plans, department)
     include_distributions = frappe.has_permission("C360 BCP Distribution", "read")
     body += "<h2>" + escape_html(_("Plan details")) + "</h2>"
     for plan in plans:
@@ -516,6 +517,72 @@ def _bcp_body(department: str | None) -> str:
                       r.open_count,
                       _badge(r.acknowledged_on, "#2f9e44") if r.acknowledged_on
                       else _badge(_("Not acknowledged"), "#d9342b")] for r in recipients])
+        body += "</div>"
+    return body
+
+
+def _call_tree_section(plans, department: str | None) -> str:
+    trees = _docs("C360 Call Tree", filters={"status": "Active"}, order_by="tree_name asc")
+    if trees is None:
+        return "<p>" + escape_html(_("Call trees are not visible to your role.")) + "</p>"
+    if department:
+        plan_names = {plan.name for plan in plans}
+        trees = [tree for tree in trees if tree.department == department
+                 or (tree.business_continuity_plan
+                     and tree.business_continuity_plan in plan_names)]
+    if not trees:
+        return "<p>" + escape_html(_("No active call trees in this scope yet.")) + "</p>"
+    contact_rows = _rows("C360 Emergency Contact", fields=[
+        "name", "contact_name", "responsibility", "phone", "email"]) or []
+    contact_meta = {row.name: row for row in contact_rows}
+    bcp_titles = _titles("C360 Business Continuity Plan", "plan_title")
+    departments = _titles("C360 Department", "department_name")
+    body = "<p>" + escape_html(_(
+        "Only completed (Active) call trees are printed. Each person phones the contacts "
+        "listed beside them, in order.")) + "</p>"
+    for tree in trees:
+        body += f"<div class='detail'><h3>{escape_html(tree.tree_name)}</h3>"
+        body += _kv([
+            (_("When to activate"), _text(tree.activation_criteria)),
+            (_("Caller instructions"), _text(tree.instructions)),
+            (_("Business continuity plan"), bcp_titles.get(
+                tree.business_continuity_plan, tree.business_continuity_plan or "")),
+            (_("Department"), departments.get(tree.department, tree.department or "")),
+            (_("Maintained by"), _user(tree.responsible_user)),
+            (_("Last updated by"), _("{0} on {1}").format(_user(tree.modified_by),
+                                                          _when(tree.modified))),
+        ])
+        contacts = {row.contact for row in tree.members}
+        children: dict[str, list] = {}
+        roots = []
+        for row in tree.members:
+            if row.called_by and row.called_by in contacts and row.called_by != row.contact:
+                children.setdefault(row.called_by, []).append(row)
+            else:
+                roots.append(row)
+        rows, seen = [], set()
+
+        def walk(member, level):
+            if member.contact in seen:
+                return
+            seen.add(member.contact)
+            meta = contact_meta.get(member.contact, frappe._dict())
+            display = meta.get("contact_name") or member.contact
+            marker = ("&nbsp;" * (level * 4) + "&#8627; ") if level else "&#9742; "
+            calls = ", ".join(
+                (contact_meta.get(row.contact, frappe._dict()).get("contact_name") or row.contact)
+                for row in children.get(member.contact, ()))
+            rows.append([_Raw(marker + "<b>" + escape_html(display) + "</b>"),
+                         member.tree_role or "", meta.get("responsibility") or "",
+                         meta.get("phone") or "", meta.get("email") or "",
+                         calls or _Raw("<i>" + escape_html(_("No one (end of branch)")) + "</i>")])
+            for follower in children.get(member.contact, ()):
+                walk(follower, level + 1)
+
+        for root in roots:
+            walk(root, 0)
+        body += _table([_("Cascade"), _("Role in cascade"), _("Responsibility"), _("Phone"),
+                        _("Email"), _("Calls")], rows)
         body += "</div>"
     return body
 
@@ -698,6 +765,7 @@ RISK_CONTENTS = (
 BCP_CONTENTS = (
     (_("Plan register"), ()),
     (_("Document control and approvals"), ()),
+    (_("Call trees"), (_("Notification cascade with phone and email details"),)),
     (_("Plan details"), (_("Scope, strategies, teams and procedures"),
                          _("Distribution and acknowledgement"))),
 )

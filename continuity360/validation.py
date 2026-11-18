@@ -206,6 +206,15 @@ def validate_corrective_action(doc, method=None) -> None:
         doc.completed_on = None
 
 
+def validate_call_tree(doc, method=None) -> None:
+    _same_company(doc, "business_continuity_plan", "C360 Business Continuity Plan")
+    _same_company(doc, "department", "C360 Department")
+    _validate_company_rows(doc, "members", "contact", "C360 Emergency Contact")
+    _apply(rules.call_tree_structure,
+           [(row.contact, row.called_by or None) for row in doc.members],
+           doc.status == "Active")
+
+
 def _validate_controlled_plan(doc, label) -> None:
     if doc.is_new() and (doc.approval_status != "Draft" or doc.docstatus != 0):
         frappe.throw(_("New plans must begin as drafts."))

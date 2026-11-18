@@ -52,6 +52,39 @@ def date_order(start: date, end: date, label: str) -> None:
         raise ValueError(f"{label} must not be before its start date.")
 
 
+def call_tree_structure(members: list, require_complete: bool) -> None:
+    """members is a list of (contact, called_by) pairs; called_by None starts the cascade."""
+    contacts = [contact for contact, _caller in members]
+    if len(set(contacts)) != len(contacts):
+        raise ValueError("Each contact may appear in the call tree only once.")
+    known = set(contacts)
+    for contact, caller in members:
+        if caller == contact:
+            raise ValueError("A contact cannot call themselves.")
+        if caller is not None and caller not in known:
+            raise ValueError("Every 'called by' entry must be another member of this call tree.")
+    if not require_complete:
+        return
+    if len(members) < 2:
+        raise ValueError("An active call tree needs at least two members.")
+    roots = [contact for contact, caller in members if caller is None]
+    if not roots:
+        raise ValueError("An active call tree needs an initiator with no 'called by' entry.")
+    children: dict = {}
+    for contact, caller in members:
+        if caller is not None:
+            children.setdefault(caller, []).append(contact)
+    reached, queue = set(roots), list(roots)
+    while queue:
+        for follower in children.get(queue.pop(), ()):
+            if follower not in reached:
+                reached.add(follower)
+                queue.append(follower)
+    if reached != known:
+        raise ValueError("Every member of an active call tree must be reachable from an "
+                         "initiator; remove circular or orphaned 'called by' entries.")
+
+
 def exercise_completion(status: str, conducted_on: object, result: object, summary: object,
                         objective_outcomes: list) -> None:
     """A completed exercise must carry its evidence; other statuses are unrestricted."""
