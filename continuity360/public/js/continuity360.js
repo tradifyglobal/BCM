@@ -47,14 +47,25 @@
     ];
     const roles = ["BCM Administrator", "Risk Manager", "IT Manager", "Auditor", "Employee",
         "BCP Author", "BCP Manager Reviewer", "BCP Executive Approver"];
+    const planGatedGroups = { "Incident & Crisis": "incident_crisis", Infrastructure: "infrastructure" };
     const escape = (value) => frappe.utils.escape_html(__(value));
     const href = ([, doctype, page]) => page
         ? `/desk/${page}` : `/desk/continuity360/${doctype.toLowerCase().replaceAll(" ", "-")}`;
 
-    $(document).on("app_ready", () => {
+    $(document).on("app_ready", async () => {
         if (!roles.some((role) => frappe.user.has_role(role))) return;
+        let plan = null;
+        try {
+            plan = (await frappe.call("continuity360.subscription.status")).message;
+        } catch (error) {
+            console.error("Continuity360: subscription status unavailable", error);
+        }
+        const branding = (plan && plan.branding) || {};
         const readable = frappe.boot.user.can_read || [];
-        const visible = groups.map((group) => ({
+        const visible = groups.filter((group) => {
+            const module = planGatedGroups[group.label];
+            return !plan || !module || plan.modules.includes(module);
+        }).map((group) => ({
             ...group, items: group.items.filter((item) => !item[1] || readable.includes(item[1])),
         })).filter((group) => group.items.length);
         const key = `continuity360.navigation.${frappe.session.user}`;
@@ -87,9 +98,24 @@
                 <div class="c360-sidebar-title">${escape("YOUR WORKSPACE")}</div>
                 ${visible.map((group) => `<section><h2>${escape(group.label)}</h2>
                     ${group.items.map(link).join("")}</section>`).join("")}
-                <div class="c360-sidebar-foot">${escape("Phase 2")}<br>${escape("Operational resilience")}</div>
+                <div class="c360-sidebar-foot">${plan
+                    ? `${escape(plan.effective_plan)} ${escape("plan")}${plan.expired ? " &#9888;" : ""}`
+                    : escape("Phase 3")}<br>${escape("Commercial SaaS")}</div>
             </aside>`;
         document.body.appendChild(shell);
+        if (branding.display_name) {
+            const brand = shell.querySelector(".c360-brand");
+            const name = branding.display_name;
+            brand.innerHTML = `<span class="c360-mark">${frappe.utils.escape_html(name[0])}</span>`
+                + frappe.utils.escape_html(name.slice(1));
+        }
+        if (branding.primary_color) {
+            shell.style.setProperty("--c360-brand-color", branding.primary_color);
+            shell.querySelector(".c360-topbar").style.background = branding.primary_color;
+            shell.querySelectorAll(".c360-mark, .c360-sidebar-foot").forEach((node) => {
+                node.style.background = branding.primary_color;
+            });
+        }
         const topbar = shell.querySelector(".c360-topbar");
         const updateTopbarHeight = () => {
             document.body.style.setProperty("--c360-current-top", `${topbar.getBoundingClientRect().height}px`);

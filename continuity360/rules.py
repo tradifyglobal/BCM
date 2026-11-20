@@ -52,6 +52,39 @@ def date_order(start: date, end: date, label: str) -> None:
         raise ValueError(f"{label} must not be before its start date.")
 
 
+PLAN_MODULES = {
+    "Starter": ("foundation",),
+    "Professional": ("foundation", "incident_crisis"),
+    "Enterprise": ("foundation", "incident_crisis", "infrastructure",
+                   "white_label", "integrations"),
+}
+
+
+def plan_entitlements(plan: str, valid_until: date | None, today: date) -> tuple:
+    """Effective modules for a plan; expired subscriptions fall back to Starter."""
+    if plan not in PLAN_MODULES:
+        raise ValueError("Unknown subscription plan.")
+    expired = valid_until is not None and valid_until < today
+    effective_plan = "Starter" if expired else plan
+    return effective_plan, PLAN_MODULES[effective_plan], expired
+
+
+def seat_limit(licensed: object, used: object) -> None:
+    licensed_count = int(number(licensed, "Licensed users", minimum=1))
+    if int(number(used, "Enabled users")) > licensed_count:
+        raise ValueError(
+            f"The subscription licenses {licensed_count} users; disable an existing user "
+            "or upgrade the plan before enabling another.")
+
+
+def brand_color(value: str | None) -> str | None:
+    if value in (None, ""):
+        return None
+    if not re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+        raise ValueError("Use a six-digit hex colour such as #0f6a53.")
+    return value.lower()
+
+
 def call_tree_structure(members: list, require_complete: bool) -> None:
     """members is a list of (contact, called_by) pairs; called_by None starts the cascade."""
     contacts = [contact for contact, _caller in members]

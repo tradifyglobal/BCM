@@ -6,7 +6,7 @@ app_license = "Proprietary"
 app_home = "/desk/continuity360"
 
 # The version query forces browsers to refetch these unversioned assets after a release.
-ASSET_VERSION = "20261120-1"
+ASSET_VERSION = "20261120-2"
 app_include_js = [
     f"/assets/continuity360/js/continuity360.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/bcp_plan.js?v={ASSET_VERSION}",
@@ -42,12 +42,36 @@ doc_events = {
     "C360 Incident": {
         "validate": "continuity360.validation.validate_incident",
         "after_insert": "continuity360.validation.notify_incident",
+        "before_insert": "continuity360.subscription.enforce_module",
     },
-    "C360 Crisis Event": {"validate": "continuity360.validation.validate_crisis"},
-    "C360 Application": {"validate": "continuity360.validation.validate_application"},
-    "C360 Database Instance": {"validate": "continuity360.validation.validate_database_instance"},
-    "C360 IT Dependency": {"validate": "continuity360.validation.validate_dependency"},
-    "C360 Outage Simulation": {"validate": "continuity360.validation.validate_simulation"},
+    "C360 Crisis Event": {
+        "validate": "continuity360.validation.validate_crisis",
+        "before_insert": "continuity360.subscription.enforce_module",
+    },
+    "C360 Communication Plan": {"before_insert": "continuity360.subscription.enforce_module"},
+    "C360 Application": {
+        "validate": "continuity360.validation.validate_application",
+        "before_insert": "continuity360.subscription.enforce_module",
+    },
+    "C360 Server": {"before_insert": "continuity360.subscription.enforce_module"},
+    "C360 Database Instance": {
+        "validate": "continuity360.validation.validate_database_instance",
+        "before_insert": "continuity360.subscription.enforce_module",
+    },
+    "C360 IT Dependency": {
+        "validate": "continuity360.validation.validate_dependency",
+        "before_insert": "continuity360.subscription.enforce_module",
+    },
+    "C360 Outage Simulation": {
+        "validate": "continuity360.validation.validate_simulation",
+        "before_insert": "continuity360.subscription.enforce_module",
+    },
+    "C360 Integration Connection": {
+        "validate": "continuity360.integrations.validate_connection",
+        "before_insert": "continuity360.subscription.enforce_module",
+    },
+    "C360 Branding": {"validate": "continuity360.subscription.validate_branding"},
+    "User": {"validate": "continuity360.subscription.enforce_seats"},
     "C360 Department": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Employee": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Location": {"validate": "continuity360.validation.validate_company_links"},

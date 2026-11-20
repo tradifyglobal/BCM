@@ -596,6 +596,51 @@ define("C360 Outage Simulation", [
     field("notes", "Notes", "Small Text"),
 ], title_field="simulation_title", editors=(IT, RISK), readers=(AUDITOR,))
 
+# ------------------------------------------------------- Phase 3: commercial SaaS layer
+
+# Operator-managed: tenant roles may read their plan but never change it.
+# Operators set plans with bench execute continuity360.subscription.set_plan.
+define("C360 Subscription", [
+    choice("plan", "Subscription plan", "Starter\nProfessional\nEnterprise",
+           default="Enterprise", reqd=1,
+           description="Managed centrally by the Continuity360 operator."),
+    field("licensed_users", "Licensed users", "Int", default="25", reqd=1,
+          description="Maximum enabled system users (excluding Administrator and Guest)."),
+    field("valid_until", "Valid until", "Date",
+          description="After this date the tenant falls back to Starter entitlements."),
+    field("customer_reference", "Customer reference"),
+], issingle=1, permissions=[
+    {"role": ADMIN, "read": 1, "write": 0, "create": 0, "print": 1, "email": 0,
+     "share": 0, "delete": 0},
+    {"role": AUDITOR, "read": 1, "write": 0, "create": 0, "print": 1, "email": 0,
+     "share": 0, "delete": 0},
+])
+
+define("C360 Branding", [
+    field("display_name", "Display name",
+          description="Shown in navigation and report branding instead of the company name."),
+    field("primary_color", "Primary colour",
+          description="Hex colour such as #0f6a53; themes navigation and report accents."),
+    field("report_footer", "Report footer line",
+          description="Printed in the attribution footer of every PDF report."),
+    field("logo", "Logo", "Attach Image"),
+], issingle=1, editors=(), readers=(RISK, IT, AUDITOR, EMPLOYEE, BCP_AUTHOR,
+                                    BCP_MANAGER, BCP_EXECUTIVE))
+
+define("C360 Integration Connection", [
+    field("connection_name", "Connection name", reqd=1, in_list_view=1), company(),
+    choice("provider", "Provider", "AWS\nAzure\nMicrosoft 365\nMonitoring",
+           reqd=1, in_list_view=1),
+    field("account_reference", "Account / tenant reference", reqd=1,
+          description="AWS account id, Azure tenant id or equivalent. Never a secret."),
+    field("credential", "API credential", "Password",
+          description="Stored encrypted. Used by future live polling; manual inventory "
+                      "import does not require it."),
+    field("enabled", "Enabled", "Check", default="1", in_list_view=1),
+    field("last_import", "Last inventory import", "Datetime", read_only=1, no_copy=1),
+    field("notes", "Notes", "Small Text"),
+], title_field="connection_name", editors=(IT,), readers=(AUDITOR,))
+
 # Plan readers do not receive employee/contact-directory access independently.
 for plan_type, editor in (("C360 Recovery Plan", IT), ("C360 Business Continuity Plan", BCP_AUTHOR)):
     for permission in DOCTYPES[plan_type]["permissions"]:

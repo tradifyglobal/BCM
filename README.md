@@ -37,9 +37,22 @@ on UAT and shipped in image `continuity360:phase2-20261120`:
    with RTO/RPO, validation guidance and a saved post-incident simulation record.
    Illustrative workflow over recorded relationships; no live cloud connections.
 
-**Phase 3 (commercial SaaS layer).** Subscription plans (Starter/Professional/
-Enterprise), central tenant administration across Frappe sites, white labelling,
-live API integrations (AWS, Azure, Microsoft 365, monitoring), a verified public
+**Phase 3 (commercial SaaS layer) - implemented.** Shipped in image
+`continuity360:phase3-20261120`:
+1. Subscription management: Starter / Professional / Enterprise plans with per-module
+   entitlements enforced server-side, seat licensing, expiry fallback to Starter and
+   an operator-only plan store; tenants see their plan but cannot change it.
+2. Central tenant administration: `scripts/tenant_admin.py` lists tenant sites and
+   shows or sets each tenant's plan from the host, on top of the existing
+   provisioning, isolation-drill and restore tooling.
+3. White labelling (Enterprise): tenant display name, primary colour and report
+   footer applied to desk navigation and all PDF reports.
+4. API integrations (Enterprise): per-provider connection registry (AWS, Azure,
+   Microsoft 365, monitoring) with encrypted credential storage and a normalized
+   inventory import that upserts applications, servers and databases into the
+   Recovery Intelligence graph. Live polling remains roadmap work.
+
+**Remaining pre-launch gates.** Subscription billing/payments, a verified public
 multi-tenant gateway, browser E2E and registry publishing in CI, concurrency testing,
 an independent security assessment and a slimmer base image without ERPNext.
 
@@ -302,6 +315,51 @@ public and private file contents. This is not a production-ready deployment.
   escalations and timeline, an open Medium incident, a closed Level 2 crisis with
   log and communications, two standing communication plans and saved outage
   simulations.
+
+## Phase 3 implementation
+
+- Subscription management: the operator-managed C360 Subscription single stores the
+  plan (Starter/Professional/Enterprise), licensed seats, validity date and customer
+  reference. Tenant roles can read it; only the operator changes it via
+  `bench execute continuity360.subscription.set_plan` or `scripts/tenant_admin.py`.
+  Entitlements: Starter covers the full BCM foundation (organisation, risk, BIA,
+  BCP, DR, call trees, testing, compliance, reports); Professional adds Incident &
+  Crisis Management; Enterprise adds Infrastructure & Recovery Intelligence, white
+  labelling and API integrations. Enforcement is server-side on record creation in
+  gated modules with a clear upgrade message, and the navigation hides gated groups.
+  An expired subscription falls back to Starter entitlements and is flagged in the
+  sidebar. Seat licensing blocks enabling a System User beyond the licensed count
+  (role-less Website Users without desk access do not consume seats). Sites without
+  a configured plan run as Enterprise for development; provisioning must set a real
+  plan. The whitelisted status endpoint reports plan, modules, seats and branding.
+- Central tenant administration: `python3 scripts/tenant_admin.py list|show|set-plan`
+  on the Docker host enumerates tenant sites and manages each tenant's subscription
+  through bench, keeping tenant databases isolated.
+- White labelling (Enterprise): the C360 Branding single holds a display name,
+  six-digit hex primary colour (validated and normalised) and a report footer line.
+  Branding themes the desk navigation (brand name, top bar and accents) and every
+  PDF report (brand name, retinted headings and tables, attribution footer).
+  Saving branding on a non-Enterprise plan is rejected, and lower plans
+  automatically render the default Continuity360 identity.
+- API integrations (Enterprise): C360 Integration Connection registers AWS, Azure,
+  Microsoft 365 or monitoring accounts with a non-secret account reference, an
+  encrypted credential slot and an enabled flag. The whitelisted
+  `continuity360.integrations.import_inventory` endpoint accepts a normalized JSON
+  payload (for example derived from `aws ec2 describe-instances` or `az vm list`)
+  and upserts applications, servers and database instances with provider-appropriate
+  platforms, stamping the connection's last import time. Live credential-based
+  polling is roadmap work and is labelled as such.
+- Verification: 30 domain tests pass (plan entitlements, expiry fallback, seat
+  limits, brand colour validation). A live UAT drill confirmed Starter blocks
+  incident and infrastructure creation, Professional allows incidents but not
+  infrastructure, an expired Enterprise plan falls back to Starter with an expiry
+  message, seat enforcement blocks an over-limit System User, branding is applied
+  to reports (retinted PDF, footer line, brand name) and navigation (GeeksOnTap
+  name, themed top bar, plan badge), gated navigation groups disappear on Starter
+  and return on Enterprise, and an AWS connection import created two inventory
+  records, updated one and skipped an invalid row. The GeeksOnTap tenant runs
+  Enterprise (25 seats, valid until 2027-12-31) with GeeksOnTap branding and an
+  AWS production connection.
 
 DocTypes use the `C360` prefix to avoid collisions with ERPNext/HRMS. They are defined in
 `continuity360/schema.py` and synchronised as app-owned custom DocTypes during installation

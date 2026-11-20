@@ -2,6 +2,7 @@ import unittest
 from datetime import date, timedelta
 
 from continuity360.rules import (
+    brand_color,
     call_tree_span,
     call_tree_structure,
     crisis_closure,
@@ -10,9 +11,11 @@ from continuity360.rules import (
     exercise_completion,
     incident_lifecycle,
     next_bcp_version,
+    plan_entitlements,
     recovery_objectives,
     review_reminder_slot,
     risk_score,
+    seat_limit,
 )
 
 
@@ -190,3 +193,42 @@ class DependencyTests(unittest.TestCase):
     def test_self_dependency_is_rejected(self):
         with self.assertRaises(ValueError):
             dependency_target("app-a", "app-a", None, None)
+
+
+class SubscriptionTests(unittest.TestCase):
+    TODAY = date(2026, 11, 20)
+
+    def test_plans_grant_increasing_modules(self):
+        starter = plan_entitlements("Starter", None, self.TODAY)
+        professional = plan_entitlements("Professional", None, self.TODAY)
+        enterprise = plan_entitlements("Enterprise", None, self.TODAY)
+        self.assertEqual(starter, ("Starter", ("foundation",), False))
+        self.assertIn("incident_crisis", professional[1])
+        self.assertNotIn("infrastructure", professional[1])
+        for module in ("foundation", "incident_crisis", "infrastructure",
+                       "white_label", "integrations"):
+            self.assertIn(module, enterprise[1])
+
+    def test_expiry_falls_back_to_starter(self):
+        plan, modules, expired = plan_entitlements(
+            "Enterprise", self.TODAY - timedelta(days=1), self.TODAY)
+        self.assertEqual((plan, expired), ("Starter", True))
+        self.assertEqual(modules, ("foundation",))
+        self.assertFalse(plan_entitlements("Enterprise", self.TODAY, self.TODAY)[2])
+
+    def test_unknown_plan_is_rejected(self):
+        with self.assertRaises(ValueError):
+            plan_entitlements("Platinum", None, self.TODAY)
+
+    def test_seat_limit(self):
+        seat_limit(10, 10)
+        for licensed, used in ((10, 11), (0, 0), (-1, 1)):
+            with self.subTest(licensed=licensed, used=used), self.assertRaises(ValueError):
+                seat_limit(licensed, used)
+
+    def test_brand_color_normalisation(self):
+        self.assertEqual(brand_color("#0F6A53"), "#0f6a53")
+        self.assertIsNone(brand_color(""))
+        for value in ("0f6a53", "#0f6a5", "#0f6a5g", "#0f6a53aa"):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                brand_color(value)
