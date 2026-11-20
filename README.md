@@ -358,8 +358,12 @@ public and private file contents. This is not a production-ready deployment.
   name, themed top bar, plan badge), gated navigation groups disappear on Starter
   and return on Enterprise, and an AWS connection import created two inventory
   records, updated one and skipped an invalid row. The GeeksOnTap tenant runs
-  Enterprise (25 seats, valid until 2027-12-31) with GeeksOnTap branding and an
-  AWS production connection.
+  Enterprise (25 seats, valid until 2027-12-31) with an AWS production connection.
+  White labelling was verified end to end and then cleared at the customer's request:
+  the tenant uses the default Continuity360 identity (navy-blue theme, Continuity360
+  navigation brand), and reports brand with the company name as before. Reverting the
+  branding record restores the defaults with no code change, which is itself the
+  intended downgrade behaviour.
 
 DocTypes use the `C360` prefix to avoid collisions with ERPNext/HRMS. They are defined in
 `continuity360/schema.py` and synchronised as app-owned custom DocTypes during installation
