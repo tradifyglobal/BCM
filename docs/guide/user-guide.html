@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body{font-family:'Segoe UI',Arial,'Helvetica Neue','DejaVu Sans',sans-serif;color:#1d2d3e;font-size:10pt;line-height:1.5}
+h1{font-size:17pt;color:#102d70;margin:6px 0 12px;border-bottom:3px solid #245cd1;padding-bottom:6px;page-break-after:avoid}
+h2{font-size:12.5pt;color:#1454a0;margin:20px 0 8px;border-bottom:2px solid #dce5f2;padding-bottom:4px;page-break-after:avoid}
+h3{font-size:10.5pt;color:#102d70;margin:14px 0 6px;page-break-after:avoid;background:#f1f6fd;border-left:4px solid #245cd1;padding:5px 8px;border-radius:0 4px 4px 0}
+.chapter{page-break-before:always}
+table{width:100%;border-collapse:collapse;margin:8px 0 14px;table-layout:fixed;font-size:8.5pt}
+th{text-align:left;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:#1b3a6b;padding:6px;word-wrap:break-word}
+td{padding:6px;border-bottom:1px solid #e3e9f2;vertical-align:top;word-wrap:break-word;overflow-wrap:break-word}
+tr:nth-child(even) td{background:#f6f9fd}
+img.shot{width:100%;border:1px solid #c9d6e8;border-radius:4px;margin:8px 0 2px;page-break-inside:avoid}
+.caption{color:#5c6f84;font-size:8pt;font-style:italic;margin:0 0 14px;text-align:center}
+.step{background:#f6f9fd;border:1px solid #dce5f2;border-left:5px solid #2f80e6;border-radius:0 5px 5px 0;padding:8px 12px;margin:10px 0;page-break-inside:avoid}
+.step b.n{color:#2f80e6}
+.tip{background:#f0faf4;border:1px solid #cfe9d9;border-left:5px solid #2f9e44;border-radius:0 5px 5px 0;padding:8px 12px;margin:10px 0;font-size:9pt;page-break-inside:avoid}
+.warn{background:#fdf6ec;border:1px solid #f3dfc0;border-left:5px solid #f08c00;border-radius:0 5px 5px 0;padding:8px 12px;margin:10px 0;font-size:9pt;page-break-inside:avoid}
+.kv b{color:#1454a0}
+.badge{display:inline-block;padding:1.5px 8px;border-radius:9px;font-size:7.5pt;font-weight:bold;color:#fff;white-space:nowrap}
+.cover{page-break-after:always;padding-top:60px}
+.cover-band{height:14px;background:#102d70;margin-bottom:4px}
+.cover-band2{height:5px;background:#2f80e6;margin-bottom:60px}
+.cover-brand{font-size:32pt;font-weight:bold;color:#102d70;margin-bottom:4px}
+.cover-title{font-size:19pt;color:#2f5fb0;font-weight:normal;margin:0 0 28px}
+.cover-scope{display:inline-block;background:#eef4fd;border:1px solid #c9dcf7;color:#1b3a6b;border-radius:7px;padding:9px 16px;font-size:11pt;font-weight:bold;margin-bottom:36px}
+.cover-meta{width:70%;table-layout:auto;font-size:9.5pt}
+.cover-meta td{border-bottom:1px solid #dce5f2;padding:8px 6px}
+.cover-meta td:first-child{color:#5c6f84;text-transform:uppercase;font-size:7.5pt;letter-spacing:.6px;width:170px}
+.toc{page-break-after:always;padding-top:24px}
+.toc-title{font-size:15pt;color:#102d70;border-bottom:3px solid #245cd1;padding-bottom:6px;margin-bottom:14px}
+.toc-item{font-size:10.5pt;color:#1d2d3e;font-weight:bold;margin:9px 0 3px;border-bottom:1px dotted #b9c6d8;padding-bottom:4px}
+.toc-item span{display:inline-block;min-width:28px;color:#2f80e6}
+.toc-sub{font-size:9pt;color:#44566b;margin:2px 0 2px 30px}
+.note{color:#5c6f84;font-size:8pt;margin-top:18px;border-top:1px solid #dce5f2;padding-top:8px}
+</style>
+</head>
+<body>
+
+<div class="cover">
+<div class="cover-band"></div><div class="cover-band2"></div>
+<div class="cover-brand">Continuity360</div>
+<h1 class="cover-title" style="border:none">Complete User Guide &mdash; Building a Full BCM Cycle</h1><br>
+<span class="cover-scope">From organisation setup to recovery intelligence, step by step</span>
+<table class="cover-meta">
+<tr><td>Document</td><td>Continuity360 User Guide</td></tr>
+<tr><td>Audience</td><td>New users with no prior BCM software experience</td></tr>
+<tr><td>Covers</td><td>Phases 1&ndash;3: BCM foundation, operational resilience and the commercial layer</td></tr>
+<tr><td>Example data</td><td>GeeksOnTap, a fictional managed-services company</td></tr>
+<tr><td>Produced by</td><td>Continuity360</td></tr>
+<tr><td>Classification</td><td>Customer documentation &mdash; uncontrolled when printed</td></tr>
+</table>
+</div>
+
+<div class="toc">
+<div class="toc-title">Table of Contents</div>
+<div class="toc-item"><span>1.</span>Welcome: what is Business Continuity Management?</div>
+<div class="toc-sub">The BCM cycle &middot; how Continuity360 maps to it &middot; the GeeksOnTap example</div>
+<div class="toc-item"><span>2.</span>Getting started</div>
+<div class="toc-sub">Signing in &middot; the dashboard &middot; navigation layouts &middot; roles and what they may do</div>
+<div class="toc-item"><span>3.</span>Step 1 &mdash; Set up your organisation</div>
+<div class="toc-sub">Company &middot; departments &middot; locations &middot; employees &middot; vendors</div>
+<div class="toc-item"><span>4.</span>Step 2 &mdash; Build the risk register</div>
+<div class="toc-sub">Recording risks &middot; the 5&times;5 matrix &middot; scoring bands &middot; residual assessments &middot; treatments</div>
+<div class="toc-item"><span>5.</span>Step 3 &mdash; Business Impact Analysis (BIA)</div>
+<div class="toc-sub">Business processes &middot; RTO, RPO and MTPD explained &middot; impact assessments</div>
+<div class="toc-item"><span>6.</span>Step 4 &mdash; Disaster recovery plans</div>
+<div class="toc-sub">Recovery strategies &middot; step-by-step runbooks &middot; the approval workflow</div>
+<div class="toc-item"><span>7.</span>Step 5 &mdash; Business continuity plans (BCP)</div>
+<div class="toc-sub">Writing a plan &middot; four-stage approval &middot; versioning &middot; distribution and acknowledgement</div>
+<div class="toc-item"><span>8.</span>Step 6 &mdash; Call trees</div>
+<div class="toc-sub">Who calls whom &middot; activation rules &middot; span of control &middot; printing in documents</div>
+<div class="toc-item"><span>9.</span>Step 7 &mdash; Testing and exercises</div>
+<div class="toc-sub">Exercise types &middot; objectives and outcomes &middot; corrective actions</div>
+<div class="toc-item"><span>10.</span>Step 8 &mdash; Incident management</div>
+<div class="toc-sub">Recording incidents &middot; severity and escalation &middot; the timeline &middot; resolving</div>
+<div class="toc-item"><span>11.</span>Step 9 &mdash; Crisis management</div>
+<div class="toc-sub">Declaring a crisis &middot; the commander &middot; decision log &middot; communications &middot; standing down</div>
+<div class="toc-item"><span>12.</span>Step 10 &mdash; Infrastructure and Recovery Intelligence</div>
+<div class="toc-sub">Applications, servers, databases &middot; dependencies &middot; simulating an outage</div>
+<div class="toc-item"><span>13.</span>Step 11 &mdash; Compliance</div>
+<div class="toc-sub">The control register &middot; ISO 22301 and the 2024 climate amendment</div>
+<div class="toc-item"><span>14.</span>Step 12 &mdash; Department View and reports</div>
+<div class="toc-sub">The department 360 &middot; Report Centre &middot; document versioning and control</div>
+<div class="toc-item"><span>15.</span>Administration: plans, branding and integrations</div>
+<div class="toc-sub">Subscription plans &middot; seats &middot; white labelling &middot; cloud inventory import</div>
+<div class="toc-item"><span>16.</span>Appendix</div>
+<div class="toc-sub">Glossary &middot; scoring bands &middot; the complete GeeksOnTap walkthrough checklist</div>
+</div>
+
+<h1>1. Welcome: what is Business Continuity Management?</h1>
+<p><b>Business Continuity Management (BCM)</b> is the discipline of making sure your
+organisation can keep delivering its most important products and services when something
+goes wrong &mdash; a system outage, a flood, a cyber attack, the loss of a key supplier or
+a key person. Instead of improvising during a disruption, a BCM programme prepares
+answers in advance: <i>what matters most, what could stop it, how quickly it must come
+back, who does what, and how do we know our plans actually work?</i></p>
+<p>Continuity360 walks you through that programme as a repeating cycle:</p>
+<table>
+<tr><th style="width:30px">#</th><th style="width:160px">Cycle stage</th><th>What you do</th><th style="width:170px">Continuity360 module</th></tr>
+<tr><td>1</td><td>Understand the organisation</td><td>Record the company, its departments, people, locations and vendors.</td><td>Organisation</td></tr>
+<tr><td>2</td><td>Identify risks</td><td>List what could go wrong and score how likely and how damaging each risk is.</td><td>Risk Management</td></tr>
+<tr><td>3</td><td>Analyse business impact</td><td>Decide which processes are critical and how quickly each must recover.</td><td>Business Impact Analysis</td></tr>
+<tr><td>4</td><td>Plan recovery</td><td>Write approved, step-by-step technical recovery runbooks.</td><td>Disaster Recovery</td></tr>
+<tr><td>5</td><td>Plan continuity</td><td>Write and approve business continuity plans and distribute them.</td><td>Business Continuity Planning</td></tr>
+<tr><td>6</td><td>Prepare communication</td><td>Build call trees so everyone knows who phones whom in an emergency.</td><td>Call Trees</td></tr>
+<tr><td>7</td><td>Test everything</td><td>Run drills and tabletop exercises; fix what the tests expose.</td><td>Testing &amp; Exercises</td></tr>
+<tr><td>8</td><td>Respond</td><td>Record real incidents, escalate, and coordinate a crisis when needed.</td><td>Incident &amp; Crisis</td></tr>
+<tr><td>9</td><td>Know your technology</td><td>Map applications and infrastructure to processes; simulate outages.</td><td>Infrastructure &amp; Recovery Intelligence</td></tr>
+<tr><td>10</td><td>Prove it</td><td>Track compliance controls and produce professional evidence reports.</td><td>Compliance &amp; Reports</td></tr>
+</table>
+<div class="tip"><b>The example used throughout this guide.</b> Every screenshot shows
+<b>GeeksOnTap</b>, a fictional managed-IT-services company with five departments
+(Finance, IT, HR, Compliance, Operations), six employees, eight risks, approved recovery
+and continuity plans, call trees, exercises, incidents and a crisis record. You can follow
+along by recreating the same records for your own organisation &mdash; the order of this
+guide is the order in which to enter them.</div>
+
+<h1 class="chapter">2. Getting started</h1>
+<h2>2.1 Signing in</h2>
+<div class="step"><b class="n">Step 1.</b> Open your Continuity360 address in a browser
+(for example <b>https://yourcompany.continuity360.example</b>) and sign in with the email
+address and password your administrator gave you.</div>
+<div class="step"><b class="n">Step 2.</b> After signing in you land on the
+<b>Dashboard</b> (also called Management Overview), your home page.</div>
+<h2>2.2 The dashboard</h2>
+<img class="shot" src="{{IMG:01-dashboard}}">
+<p class="caption">The dashboard: metric tiles, risk and process charts, the risk heatmap and priority tables.</p>
+<p>The dashboard only ever shows <b>records you are allowed to see</b> &mdash; nothing is
+invented. Its parts, top to bottom:</p>
+<table>
+<tr><th style="width:190px">Element</th><th>Meaning</th></tr>
+<tr><td>Metric tiles</td><td>Live counts: companies, business processes, open risks, approved plans, open incidents, active crises, overdue treatments and plans needing review. Click any tile to open the matching list.</td></tr>
+<tr><td>Open risks by rating</td><td>How many open risks are Critical, High, Medium or Low.</td></tr>
+<tr><td>Processes by criticality</td><td>How your business processes are classified.</td></tr>
+<tr><td>Priority risks / Critical processes</td><td>The highest-scoring risks and the fastest-recovery processes, with links.</td></tr>
+<tr><td>Risk exposure heatmap</td><td>A 5&times;5 grid of open risks placed by likelihood (rows) and impact (columns).</td></tr>
+<tr><td>Download PDF</td><td>Generates the management overview as a PDF document.</td></tr>
+</table>
+<h2>2.3 Navigation: top bar, sidebar, or both</h2>
+<p>Continuity360 has a <b>top menu with dropdowns</b> and a <b>left sidebar</b>; each menu
+group matches a module (Organisation, Risk Management, and so on). Use the
+<b>Navigation layout</b> selector in the top-right to choose <i>Top + sidebar</i>,
+<i>Top navigation</i> only, or <i>Sidebar navigation</i> only &mdash; your choice is
+remembered per browser. The sidebar footer shows your subscription plan.</p>
+<h2>2.4 Roles: who can do what</h2>
+<table>
+<tr><th style="width:170px">Role</th><th>Typical person</th><th>May</th></tr>
+<tr><td>BCM Administrator</td><td>Business continuity manager</td><td>Edit everything, approve recovery plans, perform the BCM review of BCPs, manage branding.</td></tr>
+<tr><td>Risk Manager</td><td>Risk / resilience officer</td><td>Edit risks, assessments, treatments, BIA, exercises, incidents, crises, communication plans, compliance controls.</td></tr>
+<tr><td>IT Manager</td><td>Head of IT / SRE lead</td><td>Edit recovery plans, infrastructure inventory, integrations, incidents, exercises, call trees.</td></tr>
+<tr><td>BCP Author</td><td>Plan writer</td><td>Create and edit business continuity plans, strategies, teams, procedures, contacts and call trees.</td></tr>
+<tr><td>BCP Manager Reviewer</td><td>Line manager</td><td>Perform the first review stage of a BCP.</td></tr>
+<tr><td>BCP Executive Approver</td><td>Executive sponsor</td><td>Give final BCP approval.</td></tr>
+<tr><td>Auditor</td><td>Internal/external audit</td><td>Read everything and export reports; change nothing.</td></tr>
+<tr><td>Employee</td><td>Everyone else</td><td>Read what concerns them, open distributed plans and acknowledge them.</td></tr>
+</table>
+<div class="warn"><b>Separation of duties is enforced.</b> An author can never approve
+their own plan, a BCP needs four different people across its review stages, and only the
+assigned reviewer may act at each stage. If a button seems missing, it is usually because
+your role is not the one whose turn it is.</div>
+
+<h1 class="chapter">3. Step 1 &mdash; Set up your organisation</h1>
+<p>Everything else links back to these records, so enter them first, in this order.</p>
+<h3>3.1 Company</h3>
+<div class="step"><b class="n">Step 1.</b> Open <b>Organisation &rarr; Companies</b> and
+select <b>Add</b>. Enter the <b>Company name</b> (this name brands every PDF report),
+industry, country and website, then <b>Save</b>.</div>
+<h3>3.2 Departments</h3>
+<div class="step"><b class="n">Step 2.</b> Open <b>Organisation &rarr; Departments</b> and
+create one record per department (Finance, IT, HR&hellip;). Each needs the company, a
+<b>department name</b> and a <b>responsible person</b> (its continuity contact).</div>
+<h3>3.3 Locations, employees and vendors</h3>
+<div class="step"><b class="n">Step 3.</b> Add <b>Locations</b> (offices, data centres),
+then <b>Employees</b> &mdash; name, department, email, phone. Employees link people to
+departments so the Department View and reports can find them.</div>
+<div class="step"><b class="n">Step 4.</b> Add <b>Vendors</b> your business depends on
+(payroll bureau, hosting provider) with the service they provide and contact details.
+Vendors reappear later as risk sources and application suppliers.</div>
+<div class="tip">All linked records must belong to the <b>same company</b> &mdash;
+Continuity360 blocks cross-company links automatically. In a multi-tenant installation
+each customer has an entirely separate site and database.</div>
+
+<h1 class="chapter">4. Step 2 &mdash; Build the risk register</h1>
+<p>A <b>risk</b> is anything that could disrupt your business. The register lists them,
+scores them, and tracks what you are doing about each one.</p>
+<img class="shot" src="{{IMG:02-risk-list}}">
+<p class="caption">The risk register list: each row shows score, rating and status at a glance.</p>
+<h2>4.1 Recording a risk</h2>
+<div class="step"><b class="n">Step 1.</b> Open <b>Risk Management &rarr; Risk Register
+&rarr; Add</b>. Give the risk a clear <b>title</b> (&ldquo;Ransomware attack on managed
+infrastructure&rdquo;), pick the <b>category</b> (Operational, Technology, People,
+Supplier, Environmental or Regulatory) and the <b>responsible person</b> (risk owner).</div>
+<div class="step"><b class="n">Step 2.</b> Optionally link the <b>business process</b> the
+risk threatens &mdash; this link powers department filtering and recovery intelligence
+later.</div>
+<div class="step"><b class="n">Step 3.</b> Score the risk using the <b>5&times;5 risk
+matrix</b> (next section) or the two coloured 1&ndash;5 scales, describe it, and
+<b>Save</b>.</div>
+<h2>4.2 The 5&times;5 risk matrix and coloured scales</h2>
+<img class="shot" src="{{IMG:03-risk-form}}">
+<p class="caption">The clickable risk matrix: one click sets both likelihood and impact. Green cells are low risk, red cells critical.</p>
+<p>Click any cell of the matrix: the row sets <b>likelihood</b> (1 = rare &hellip; 5 =
+almost certain) and the column sets <b>impact</b> (1 = negligible &hellip; 5 = severe).
+The cell colour previews the resulting rating. You can also click the two separate
+1&ndash;5 scales, or simply type numbers &mdash; all three methods set the same fields.
+The <b>score</b> is calculated on the server as likelihood &times; impact:</p>
+<table>
+<tr><th>Score</th><th>Rating</th><th>Suggested response</th></tr>
+<tr><td>1&ndash;5</td><td><span class="badge" style="background:#2f9e44">Low</span></td><td>Accept and monitor.</td></tr>
+<tr><td>6&ndash;11</td><td><span class="badge" style="background:#f3c300;color:#4a3b00">Medium</span></td><td>Treat when practical; review each cycle.</td></tr>
+<tr><td>12&ndash;19</td><td><span class="badge" style="background:#f08c00">High</span></td><td>Treat with a dated action plan.</td></tr>
+<tr><td>20&ndash;25</td><td><span class="badge" style="background:#d9342b">Critical</span></td><td>Treat urgently; escalate to management.</td></tr>
+</table>
+<div class="warn">The risk <b>status</b> lifecycle is Open &rarr; Treating &rarr;
+Accepted / Closed. Accepting or closing a risk <b>requires a written justification</b>
+&mdash; the form will not save without one. This is your audit trail.</div>
+<h2>4.3 Residual assessments and treatments</h2>
+<div class="step"><b class="n">Step 4.</b> After controls exist, record a <b>Risk
+Assessment</b>: pick the risk, score the <b>residual</b> likelihood and impact (what is
+left after controls) and write the rationale.</div>
+<div class="step"><b class="n">Step 5.</b> For risks you are actively reducing, add a
+<b>Risk Treatment</b>: title, strategy (Avoid / Reduce / Transfer / Accept), owner, start
+and due dates and the actions. Completing a treatment <b>requires completion
+evidence</b>, and the due date can never precede the start date.</div>
+
+<h1 class="chapter">5. Step 3 &mdash; Business Impact Analysis (BIA)</h1>
+<p>The BIA answers the most important question in BCM: <b>what must come back first, and
+how fast?</b></p>
+<h2>5.1 Recovery targets, in plain language</h2>
+<table>
+<tr><th style="width:70px">Term</th><th>Stands for</th><th>Plain meaning</th></tr>
+<tr><td><b>RTO</b></td><td>Recovery Time Objective</td><td>How quickly the process must be running again after a disruption. &ldquo;Helpdesk back within 1 hour.&rdquo;</td></tr>
+<tr><td><b>RPO</b></td><td>Recovery Point Objective</td><td>How much data you can afford to lose, measured backwards in time. &ldquo;At most 15 minutes of tickets.&rdquo;</td></tr>
+<tr><td><b>MTPD</b></td><td>Maximum Tolerable Period of Disruption</td><td>The absolute limit before damage becomes unacceptable. Always longer than the RTO &mdash; the gap is time for the <i>business</i> to recover after IT does.</td></tr>
+</table>
+<h2>5.2 Creating business processes</h2>
+<img class="shot" src="{{IMG:04-process-pickers}}">
+<p class="caption">The business process form: coloured duration pills set RTO/RPO/MTPD with one click &mdash; short targets green, long targets red.</p>
+<div class="step"><b class="n">Step 1.</b> Open <b>Business Impact Analysis &rarr;
+Business Processes &rarr; Add</b>. Name the process, pick its <b>department</b> and
+<b>owner</b>, and set the <b>criticality</b> (Low&ndash;Critical).</div>
+<div class="step"><b class="n">Step 2.</b> Click the coloured <b>duration pills</b> to set
+RTO, RPO and MTPD (or type minutes directly). Continuity360 enforces <b>RTO &lt;
+MTPD</b> and explains each field under its label.</div>
+<div class="step"><b class="n">Step 3.</b> Describe the process and its <b>manual
+workaround</b> &mdash; what the team does by hand while systems are down.</div>
+<h2>5.3 Impact assessments</h2>
+<img class="shot" src="{{IMG:05-impact-assessment}}">
+<p class="caption">An impact assessment scores four damage dimensions with the same coloured 1&ndash;5 scales.</p>
+<div class="step"><b class="n">Step 4.</b> For each important process create an
+<b>Impact Assessment</b>: pick the process and date, then score the damage a disruption
+would cause on four dimensions &mdash; <b>Financial, Operational, Reputational and
+Regulatory</b> (1&ndash;5 each, clickable scales). The <b>overall impact</b> is set
+automatically to the highest of the four. Describe the disruption scenario and how the
+impact grows over time.</div>
+<div class="tip">Impact assessments justify your recovery targets to auditors: a process
+with regulatory impact 5 and a 2-day RTO will raise questions &mdash; the BIA is where
+those numbers get honest.</div>
+
+<h1 class="chapter">6. Step 4 &mdash; Disaster recovery plans</h1>
+<p>A <b>recovery plan</b> is a technical runbook: the exact steps to restore one business
+process after a disruption.</p>
+<img class="shot" src="{{IMG:06-recovery-plan}}">
+<p class="caption">An approved recovery plan: targets, contacts, ordered steps with owners and durations, and the full approval history.</p>
+<h2>6.1 Before the plan: recovery strategies</h2>
+<div class="step"><b class="n">Step 1.</b> Create a <b>Recovery Strategy</b> first
+(Disaster Recovery &rarr; Recovery Strategies): the general approach, such as
+&ldquo;fail over to the cloud standby region&rdquo;. Plans reference a strategy.</div>
+<h2>6.2 Writing the plan</h2>
+<div class="step"><b class="n">Step 2.</b> Open <b>Disaster Recovery &rarr; Recovery
+Plans &rarr; Add</b>. Link the <b>business process</b> and <b>strategy</b>, write the
+purpose/scope and the <b>activation criteria</b> (when exactly this plan kicks in).</div>
+<div class="step"><b class="n">Step 3.</b> Set the plan&rsquo;s <b>RTO and RPO</b>. They
+may not be looser than the business process&rsquo;s own targets &mdash; a plan that
+recovers slower than the business tolerates is rejected on save.</div>
+<div class="step"><b class="n">Step 4.</b> Add <b>contacts</b> (the recovery team with
+emails and phones) and the ordered <b>recovery steps</b>: instruction, responsible
+person, expected minutes and validation criteria. The summed step durations must fit
+inside the RTO.</div>
+<h2>6.3 The approval workflow</h2>
+<p>Recovery plans are controlled documents: <b>Draft &rarr; In Review &rarr; Approved
+&rarr; Retired</b>.</p>
+<div class="step"><b class="n">Step 5.</b> The author selects <b>Request Review</b>. A
+<b>different</b> BCM Administrator reviews and selects <b>Approve</b> &mdash; the system
+refuses self-approval and requires a current review date. Approval stamps who approved
+and when, and the plan becomes a submitted, read-only document.</div>
+<div class="warn">Any later change requires <b>retiring</b> the plan and creating an
+amendment, and every content change demands a written <b>revision reason</b>. Nothing in
+an approved plan changes silently.</div>
+
+<h1 class="chapter">7. Step 5 &mdash; Business continuity plans (BCP)</h1>
+<p>While a recovery plan restores one technical service, the <b>BCP</b> keeps the whole
+business running: who does what, where people work, how you communicate, and which
+recovery plans support it.</p>
+<img class="shot" src="{{IMG:07-bcp-form}}">
+<p class="caption">The corporate BCP: version, named reviewers, covered business units and linked building blocks.</p>
+<h2>7.1 Building blocks first</h2>
+<div class="step"><b class="n">Step 1.</b> Under Business Continuity Planning create your
+reusable pieces: <b>Continuity Strategies</b> (work from home, alternative site, manual
+processing&hellip;), <b>Emergency Contacts</b>, <b>Recovery Teams</b> (members from the
+contacts) and <b>Continuity Procedures</b> (ordered instructions for one scenario).</div>
+<h2>7.2 Writing the plan</h2>
+<div class="step"><b class="n">Step 2.</b> Create the <b>Business Continuity Plan</b>:
+title, purpose and scope, <b>activation criteria</b>, continuity and communication
+procedures, the <b>business units covered</b> (departments), and link your strategies,
+teams, procedures and related recovery plans.</div>
+<div class="step"><b class="n">Step 3.</b> Name the three reviewers: <b>manager
+reviewer</b>, <b>BCM reviewer</b> and <b>executive approver</b>. Together with the author
+these must be <b>four different, enabled people</b> holding the matching roles.</div>
+<h2>7.3 Four-stage approval and what it protects</h2>
+<table>
+<tr><th style="width:150px">Stage</th><th>Who acts</th><th>What happens</th></tr>
+<tr><td>Draft</td><td>Author</td><td>Free editing; only the author may change or submit the draft.</td></tr>
+<tr><td>Manager Review</td><td>Manager reviewer</td><td>Content is frozen; any change forces a return to Draft.</td></tr>
+<tr><td>BCM Review</td><td>BCM Administrator</td><td>Methodology check against your programme standards.</td></tr>
+<tr><td>Executive Approval</td><td>Executive approver</td><td>Final sign-off. Review date must be within one year. Approval captures a permission-filtered <b>snapshot</b> of the plan and everything it links.</td></tr>
+</table>
+<h2>7.4 Versioning, distribution and acknowledgement</h2>
+<p>Plans carry server-assigned versions: new plans start at <b>1.0</b>; amendments are
+<b>Minor</b> (1.0 &rarr; 1.1) or <b>Major</b> (1.1 &rarr; 2.0), chosen before the first
+save of the amendment and immutable afterwards. Retire the old plan before amending; the
+replacement walks the full approval path again.</p>
+<div class="step"><b class="n">Step 4.</b> After approval, <b>distribute</b> the plan: the
+owner or a BCM Administrator selects recipients identified by the plan itself. Each
+recipient opens the approval-time snapshot through a sign-in-protected page; Continuity360
+records first open, open count and their explicit <b>acknowledgement</b>.</div>
+<div class="step"><b class="n">Step 5.</b> Approved and retired snapshots can be
+downloaded as <b>PDF or Word</b>, labelled with version, approval date, requester and an
+&ldquo;uncontrolled copy&rdquo; notice.</div>
+<img class="shot" src="{{IMG:08-bcp-dashboard}}">
+<p class="caption">The BCP Dashboard: plan counts, reviews due, plans under approval, and live testing/corrective-action measures.</p>
+<div class="tip">Automatic <b>review reminders</b> notify plan owners 30, 7 and 1 day
+before the review date and weekly when overdue &mdash; in-app and by email where
+configured.</div>
+
+<h1 class="chapter">8. Step 6 &mdash; Call trees</h1>
+<p>A <b>call tree</b> is your emergency notification cascade: who starts it, and who
+phones whom, so that everyone learns about a disruption in minutes.</p>
+<img class="shot" src="{{IMG:09-call-tree}}">
+<p class="caption">A call tree with its live cascade preview: the initiator at the top, indented branches below, phone numbers beside each name.</p>
+<div class="step"><b class="n">Step 1.</b> Open <b>Business Continuity Planning &rarr;
+Call Trees &rarr; Add</b>. Name the tree, write <b>when to activate</b> it and the
+<b>caller instructions</b> (what each caller must say and record). Optionally link the
+BCP and/or department it belongs to.</div>
+<div class="step"><b class="n">Step 2.</b> Add <b>cascade members</b> from your emergency
+contacts. Leave <b>Called by</b> empty for the initiator; for everyone else pick the
+member who phones them. Give each a cascade role. The <b>live preview</b> redraws the
+tree as you type and flags anyone unreachable.</div>
+<div class="step"><b class="n">Step 3.</b> Set the status to <b>Active</b> when the
+cascade is complete. Activation is enforced: at least two members, an initiator, no
+cycles, no orphans, nobody phoning themselves, each contact only once.</div>
+<div class="warn"><b>Span of control:</b> if anyone phones more than seven people,
+Continuity360 warns you (on save, in the preview and in printed reports) and suggests a
+department-level tree. Good practice is three to seven calls per caller. The recommended
+pattern is one corporate tree whose department leads cascade into their own department
+trees &mdash; exactly how the GeeksOnTap demo is built.</div>
+<div class="tip"><b>Printing:</b> only <b>Active</b> (completed) call trees print in the
+BCP report and combined report &mdash; with the full hierarchy, roles, phones, emails and
+who each person calls. Draft trees never leak into documents.</div>
+
+<h1 class="chapter">9. Step 7 &mdash; Testing and exercises</h1>
+<p>An untested plan is a hope, not a plan. The Testing module records drills and
+exercises and tracks the fixes they expose.</p>
+<img class="shot" src="{{IMG:10-exercise}}">
+<p class="caption">A completed DR drill: scenario, objectives with assessed outcomes, participants, result and lessons learned.</p>
+<h2>9.1 Exercise types</h2>
+<table>
+<tr><th style="width:160px">Type</th><th>What it is</th></tr>
+<tr><td>Tabletop Exercise</td><td>A facilitated discussion walking the team through a scenario on paper.</td></tr>
+<tr><td>Walkthrough</td><td>Stepping through one plan or procedure end to end.</td></tr>
+<tr><td>Simulation</td><td>A realistic rehearsal without touching production systems.</td></tr>
+<tr><td>DR Drill</td><td>Actually executing a recovery runbook against standby systems.</td></tr>
+<tr><td>Full Interruption Test</td><td>Deliberately failing over live operations &mdash; the strongest, riskiest test.</td></tr>
+</table>
+<h2>9.2 Running an exercise</h2>
+<div class="step"><b class="n">Step 1.</b> Create the exercise: name, type, facilitator,
+the <b>BCP and/or recovery plan</b> being tested, scheduled date and the <b>scenario</b>
+(clearly simulated &mdash; no live systems are affected).</div>
+<div class="step"><b class="n">Step 2.</b> Add <b>objectives</b> (&ldquo;restore within
+the 240-minute RTO&rdquo;) and <b>participants</b> with their exercise roles.</div>
+<div class="step"><b class="n">Step 3.</b> Afterwards, assess every objective (Met /
+Partially Met / Not Met), record the conducted date, the <b>overall result</b>
+(Effective &hellip; Ineffective), the achieved recovery time, a results summary and
+<b>lessons learned</b>, then set status to <b>Completed</b>. The form refuses completion
+until all of that evidence exists.</div>
+<h2>9.3 Corrective actions</h2>
+<div class="step"><b class="n">Step 4.</b> For every gap found, raise a <b>Corrective
+Action</b>: what must change, priority, owner and due date. Completing one requires
+written <b>completion evidence</b> and stamps the completion date. Open corrective
+actions appear on the BCP Dashboard until closed.</div>
+
+<h1 class="chapter">10. Step 8 &mdash; Incident management</h1>
+<p>When a disruption actually happens, record it as an <b>incident</b> &mdash; the
+factual log of what happened, who responded and how it was resolved.</p>
+<img class="shot" src="{{IMG:11-incident}}">
+<p class="caption">A resolved Critical incident: severity, affected process, activated plans, escalation chain and the full timeline.</p>
+<div class="step"><b class="n">Step 1.</b> Open <b>Incident &amp; Crisis &rarr;
+Incidents &rarr; Add</b>. Record the title, <b>type</b> (IT Outage, Cyber Security,
+Facility, Supplier, People, Data Loss, Other), <b>severity</b> (Low&ndash;Critical),
+who reported it, the <b>incident manager</b>, detection time and what happened.</div>
+<div class="step"><b class="n">Step 2.</b> Link the <b>affected business process</b>, the
+related <b>risk</b> (reality checking your register), and the <b>recovery plan / BCP /
+call tree you activated</b>.</div>
+<div class="step"><b class="n">Step 3.</b> Define the <b>escalation chain</b>: level 1,
+2, 3&hellip; with a named person and the criteria (&ldquo;if not mitigated within 30
+minutes&rdquo;). Levels must be unique. <b>Creating a High or Critical incident
+automatically alerts the incident manager and everyone on the chain.</b></div>
+<div class="step"><b class="n">Step 4.</b> Keep the <b>timeline</b> as you work:
+detection, escalations, actions, communications. Every status change
+(Open &rarr; Investigating &rarr; Mitigated &rarr; Resolved &rarr; Closed) is appended
+to the timeline automatically with who changed it.</div>
+<div class="warn">Resolving or closing requires a <b>resolution time after the detection
+time</b> and a written <b>resolution summary</b>. Capture the root cause and impact
+summary too &mdash; the incident report prints all of it.</div>
+
+<h1 class="chapter">11. Step 9 &mdash; Crisis management</h1>
+<p>Some incidents outgrow normal handling. A <b>crisis event</b> adds command structure:
+one commander, clear decisions, controlled communication.</p>
+<img class="shot" src="{{IMG:12-crisis}}">
+<p class="caption">A closed Level&nbsp;2 crisis: commander and deputy, triggering incident, activated plans, decision log and communications issued.</p>
+<div class="step"><b class="n">Step 1.</b> <b>Declare</b> the crisis: title, <b>level</b>
+(1 Site / 2 Significant / 3 Organisation-wide), the <b>crisis commander</b> and an
+optional deputy (must be a different person), the <b>triggering incident</b>, the call
+tree activated and the situation summary.</div>
+<div class="step"><b class="n">Step 2.</b> Record the <b>activated BCPs and recovery
+plans</b>, and keep the <b>decision and action log</b> &mdash; every decision, action and
+situation update with its time. Status changes log themselves.</div>
+<div class="step"><b class="n">Step 3.</b> Track <b>communications issued</b>: audience
+(Employees, Customers, Regulators, Suppliers, Media, Executives), channel, who is
+responsible, the message summary and when it was sent.</div>
+<div class="step"><b class="n">Step 4.</b> <b>Stand down</b> when stable: a stand-down
+time after the declaration and an <b>outcome summary</b> are mandatory before the status
+can move to Stood Down or Closed.</div>
+<div class="tip"><b>Communication Plans</b> (same menu) are pre-approved templates per
+audience and channel &mdash; trigger, message template, owner and approver &mdash; so
+nobody has to draft a customer notice at 2 a.m. They print in the Incident and Crisis
+report.</div>
+
+<h1 class="chapter">12. Step 10 &mdash; Infrastructure and Recovery Intelligence</h1>
+<p>This module connects your technology to your business: which applications support
+which processes, what they run on, and &mdash; the differentiator &mdash; what an outage
+of any component would mean.</p>
+<h2>12.1 Building the inventory</h2>
+<img class="shot" src="{{IMG:13-applications}}">
+<p class="caption">The application inventory: criticality, hosting model and supported processes for each application.</p>
+<div class="step"><b class="n">Step 1.</b> Under <b>Infrastructure</b> add your
+<b>Applications</b> (criticality, hosting model AWS/Azure/SaaS/on-premises, vendor,
+recovery plan and the <b>business processes each supports</b>), <b>Servers</b>
+(environment, platform, OS) and <b>Databases</b> (engine, platform, hosting server).</div>
+<div class="step"><b class="n">Step 2.</b> Record <b>Dependencies</b>: application X
+<i>Runs On</i> server Y, <i>Stores Data In</i> database Z, or <i>Integrates With</i>
+application W. Each dependency names exactly one target, and an application can never
+depend on itself. These links are the nervous system of recovery intelligence.</div>
+<h2>12.2 Simulating an outage</h2>
+<img class="shot" src="{{IMG:14-recovery-intelligence}}">
+<p class="caption">The Recovery Intelligence walkthrough after simulating a database outage: six steps from detection to the saved post-incident record.</p>
+<div class="step"><b class="n">Step 3.</b> Open <b>Infrastructure &rarr; Recovery
+Intelligence</b>, pick a component type (Application, Server or Database) and a specific
+component, then select <b>Simulate outage</b>.</div>
+<p>Continuity360 walks the classic six steps using <i>your</i> data:</p>
+<table>
+<tr><th style="width:170px">Step</th><th>What it shows</th></tr>
+<tr><td>1. Incident detected</td><td>The simulated failed component, clearly labelled as an illustrative workflow.</td></tr>
+<tr><td>2. Business impact analysis</td><td>Every affected application &mdash; including <b>downstream</b> ones found through the dependency graph &mdash; plus the business processes, their RTOs and the departments hit.</td></tr>
+<tr><td>3. Recovery plan activated</td><td>The BCPs covering those departments and the Active call trees to ring.</td></tr>
+<tr><td>4. Recovery procedure</td><td>The approved recovery runbooks with their RTO/RPO targets.</td></tr>
+<tr><td>5. Recovery validation</td><td>Guidance to record restoration and data validation as an incident.</td></tr>
+<tr><td>6. Post-incident report</td><td>The simulation is saved as an <b>Outage Simulation</b> record with the whole walkthrough, and appears in the Infrastructure report.</td></tr>
+</table>
+<div class="warn">Simulations reason over the relationships you recorded &mdash; there is
+<b>no live connection to your cloud accounts</b>. They are perfect for tabletop
+exercises: &ldquo;the helpdesk database just died &mdash; walk me through it.&rdquo;</div>
+
+<h1 class="chapter">13. Step 11 &mdash; Compliance</h1>
+<img class="shot" src="{{IMG:16-compliance}}">
+<p class="caption">The compliance control register: framework references, self-assessed status, owners and evidence.</p>
+<div class="step"><b class="n">Step 1.</b> Open <b>Compliance &rarr; Control Register
+&rarr; Add</b>. Enter the <b>framework</b> (for example &ldquo;ISO 22301:2019&rdquo;),
+the clause <b>reference</b>, a control title, the <b>owner</b>, your <b>self-assessed
+status</b> (Not Assessed / In Progress / Implemented / Not Applicable), the evidence
+reference and the next review date.</div>
+<div class="tip"><b>ISO 22301 and climate change.</b> Amendment 1:2024 added two clause-4
+requirements: determine whether climate change is a relevant BCMS issue (4.1) and note
+that interested parties may have climate requirements (4.2). Cover it with an
+Environmental-category risk for your climate threats plus one compliance control
+documenting your determination &mdash; the GeeksOnTap demo includes a worked example.</div>
+<div class="warn">Continuity360 ships <b>no standards content</b> &mdash; you enter your
+own framework references and self-assessments. Reports label compliance data accordingly
+and nothing claims certification on your behalf.</div>
+
+<h1 class="chapter">14. Step 12 &mdash; Department View and reports</h1>
+<h2>14.1 The Department View: everything about one department</h2>
+<img class="shot" src="{{IMG:17-department-view}}">
+<p class="caption">Department View for Finance: processes, assessments, risks, treatments, plans and people in one page.</p>
+<div class="step"><b class="n">Step 1.</b> Open <b>Organisation &rarr; Department
+View</b>, pick a department from the dropdown, and get its complete continuity picture:
+processes with targets, impact assessments, risks and residual assessments, treatments,
+BCPs covering it, recovery plans and employees &mdash; each with counts and links.</div>
+<h2>14.2 The Report Centre</h2>
+<img class="shot" src="{{IMG:15-report-centre}}">
+<p class="caption">The Report Centre: one department selector scopes every report; the Complete BCM Report combines all areas.</p>
+<div class="step"><b class="n">Step 2.</b> Open <b>Reports &rarr; Report Centre</b>.
+Choose a department (or all) once &mdash; it applies to every card &mdash; then download
+any of the professional PDF reports:</p></div>
+<table>
+<tr><th style="width:210px">Report</th><th>Contents</th></tr>
+<tr><td>Complete BCM Report</td><td>Everything below as one document with eight numbered chapters.</td></tr>
+<tr><td>Business Impact Analysis</td><td>Processes, criticality, RTO/RPO/MTPD and all impact assessments.</td></tr>
+<tr><td>Risk Assessment</td><td>Register with inherent and residual scoring and all treatments.</td></tr>
+<tr><td>Business Continuity Plan</td><td>Plans, document control and approvals, <b>call trees</b>, distribution and acknowledgement.</td></tr>
+<tr><td>Disaster Recovery</td><td>Recovery plans with targets, contacts and step-by-step procedures.</td></tr>
+<tr><td>Testing and Exercise</td><td>Exercises, objectives, outcomes and corrective actions.</td></tr>
+<tr><td>Incident and Crisis</td><td>Incidents with escalations and timelines; crises with logs and communications.</td></tr>
+<tr><td>Infrastructure</td><td>Applications, servers, databases, the dependency map and outage simulations.</td></tr>
+</table>
+<h2>14.3 Document control, built in</h2>
+<p>Every generated report carries a <b>cover page</b> (your company name, title, scope, an
+auto-incrementing <b>document version</b> per report and department, prepared-by with
+full name, and a <b>document history</b> of recent issues), a <b>table of contents</b>,
+colour-coded badges throughout, the department and report name on every page header, and
+&ldquo;Page N of M&rdquo; plus the version in every footer. BCP and DR reports include a
+<b>Document control and approvals</b> section naming who prepared, reviewed and approved
+each plan &mdash; with real names. Reports include only records the requesting user may
+see and are labelled uncontrolled copies.</p>
+
+<h1 class="chapter">15. Administration: plans, branding and integrations</h1>
+<h2>15.1 Subscription plans and what they unlock</h2>
+<table>
+<tr><th style="width:110px">Plan</th><th>Included modules</th></tr>
+<tr><td><b>Starter</b></td><td>The full BCM foundation: organisation, risk, BIA, BCP, DR, call trees, testing, compliance and all reports.</td></tr>
+<tr><td><b>Professional</b></td><td>Starter + Incident &amp; Crisis Management.</td></tr>
+<tr><td><b>Enterprise</b></td><td>Professional + Infrastructure &amp; Recovery Intelligence, white labelling and API integrations.</td></tr>
+</table>
+<p>Your current plan shows in the sidebar footer. Modules outside your plan disappear from
+navigation, and creating records in them is blocked server-side with a clear upgrade
+message. An <b>expired</b> subscription falls back to Starter entitlements and is flagged.
+<b>Seats:</b> enabling a desk user beyond your licensed count is blocked &mdash; disable a
+user or upgrade. Plans are set centrally by the Continuity360 operator; tenants can see
+but never change their own plan.</p>
+<h2>15.2 White labelling (Enterprise)</h2>
+<p>Enterprise tenants may set a <b>display name</b>, a <b>primary colour</b> (six-digit
+hex) and a <b>report footer line</b> in the C360 Branding settings. The name and colour
+theme the navigation and every PDF report; clearing the fields instantly restores the
+default Continuity360 identity.</p>
+<h2>15.3 API integrations (Enterprise)</h2>
+<p>Register <b>Integration Connections</b> for AWS, Azure, Microsoft 365 or monitoring
+platforms: a connection name, the account/tenant reference (never a secret) and an
+encrypted credential slot. The <b>inventory import</b> accepts a normalised JSON list
+(for example produced from <i>aws ec2 describe-instances</i>) and creates or updates your
+applications, servers and databases automatically, stamping the connection&rsquo;s last
+import time. Live credential-based polling is on the roadmap and clearly labelled.</p>
+
+<h1 class="chapter">16. Appendix</h1>
+<h2>16.1 Glossary</h2>
+<table>
+<tr><th style="width:140px">Term</th><th>Meaning</th></tr>
+<tr><td>BCM</td><td>Business Continuity Management &mdash; the whole discipline this product supports.</td></tr>
+<tr><td>BCMS</td><td>Business Continuity Management System &mdash; your documented, managed BCM programme (the thing ISO 22301 certifies).</td></tr>
+<tr><td>BIA</td><td>Business Impact Analysis &mdash; deciding what is critical and how fast it must recover.</td></tr>
+<tr><td>BCP</td><td>Business Continuity Plan &mdash; how the business keeps operating during disruption.</td></tr>
+<tr><td>DR</td><td>Disaster Recovery &mdash; restoring technology services.</td></tr>
+<tr><td>RTO / RPO / MTPD</td><td>Recovery Time Objective / Recovery Point Objective / Maximum Tolerable Period of Disruption (section 5.1).</td></tr>
+<tr><td>Call tree</td><td>A who-phones-whom cascade for emergency notification.</td></tr>
+<tr><td>Tabletop</td><td>A discussion-based exercise walking through a scenario.</td></tr>
+<tr><td>Corrective action</td><td>A tracked fix for a weakness an exercise or incident exposed.</td></tr>
+<tr><td>Residual risk</td><td>The risk remaining after controls are applied.</td></tr>
+<tr><td>Snapshot</td><td>The frozen, approval-time copy of a BCP that recipients actually receive.</td></tr>
+<tr><td>Span of control</td><td>How many people one caller phones; good practice is three to seven.</td></tr>
+</table>
+<h2>16.2 The complete BCM cycle checklist</h2>
+<table>
+<tr><th style="width:30px">&#10003;</th><th>Milestone</th><th>You have it when&hellip;</th></tr>
+<tr><td>&#9744;</td><td>Organisation mapped</td><td>Company, departments, employees, locations and vendors are entered.</td></tr>
+<tr><td>&#9744;</td><td>Risks registered</td><td>Every significant risk is scored on the matrix with an owner; critical ones have treatments.</td></tr>
+<tr><td>&#9744;</td><td>BIA complete</td><td>Each important process has criticality, RTO/RPO/MTPD and an impact assessment.</td></tr>
+<tr><td>&#9744;</td><td>Recovery plans approved</td><td>Critical processes have Approved runbooks whose steps fit the RTO.</td></tr>
+<tr><td>&#9744;</td><td>BCP approved &amp; distributed</td><td>The plan passed all four stages and recipients acknowledged it.</td></tr>
+<tr><td>&#9744;</td><td>Call trees active</td><td>A corporate tree plus department trees, all Active, printing in reports.</td></tr>
+<tr><td>&#9744;</td><td>Tested</td><td>At least one exercise completed with outcomes; corrective actions tracked to closure.</td></tr>
+<tr><td>&#9744;</td><td>Response ready</td><td>Incident and crisis processes understood; communication plan templates exist.</td></tr>
+<tr><td>&#9744;</td><td>Technology mapped</td><td>Applications, infrastructure and dependencies entered; an outage simulation run.</td></tr>
+<tr><td>&#9744;</td><td>Evidence in hand</td><td>Compliance controls self-assessed and the Complete BCM Report generated.</td></tr>
+</table>
+<p>Then the cycle repeats: review dates come due, reminders fire, exercises find new
+gaps, risks are reassessed &mdash; and Continuity360 keeps the whole programme versioned,
+approved and audit-ready.</p>
+<p class="note">Continuity360 User Guide. Screenshots show the GeeksOnTap demonstration
+tenant. This document is an uncontrolled copy when printed or downloaded; it describes
+product behaviour and is not a certification of compliance with any standard.</p>
+</body>
+</html>

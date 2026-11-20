@@ -261,6 +261,11 @@ public and private file contents. This is not a production-ready deployment.
   DR plans and employees on one screen, each row linking to the record and each section
   respecting the viewer's role permissions. Supports `?department=` links.
 - Reproducible, localhost-only Docker development stack and GitHub Actions validation.
+- Documentation: `docs/Continuity360-User-Guide.pdf` is a 26-page illustrated,
+  step-by-step user guide covering the complete BCM cycle across all three phases,
+  written for novice users with 17 annotated screenshots of the GeeksOnTap demo.
+  Source: `docs/guide/user-guide.html` plus `docs/guide/shots/`; rebuild by replacing
+  the image placeholders with base64 data URIs and rendering with wkhtmltopdf.
 
 ## Phase 2 implementation
 
