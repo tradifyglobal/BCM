@@ -20,6 +20,12 @@ frappe.pages["report-centre"].on_page_load = function (wrapper) {
         {method: "testing_report", title: __("Testing and Exercise Report"),
          description: __("Exercises with scenarios, objectives, participants, results, "
             + "lessons learned and corrective actions.")},
+        {method: "incident_report", title: __("Incident and Crisis Report"),
+         description: __("Incidents with severity, escalation chains and timelines, plus "
+            + "crisis events with decision logs and communications.")},
+        {method: "infrastructure_report", title: __("Infrastructure Report"),
+         description: __("Applications, servers, databases, dependency map and illustrative "
+            + "outage simulations.")},
         {method: "compliance_report", title: __("Compliance Control Report"),
          description: __("Controls by framework with status, owners, evidence and review dates. "
             + "Controls are organisation-wide regardless of the selected department.")},

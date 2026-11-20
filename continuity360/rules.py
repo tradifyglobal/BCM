@@ -95,6 +95,42 @@ def call_tree_span(members: list, limit: int = 7) -> list:
     return sorted((caller, count) for caller, count in counts.items() if count > limit)
 
 
+def incident_lifecycle(status: str, detected_on: object, resolved_on: object,
+                       resolution_summary: object) -> None:
+    """Resolved and closed incidents must carry their resolution evidence."""
+    if status not in ("Resolved", "Closed"):
+        return
+    if not resolved_on:
+        raise ValueError("Record when the incident was resolved before resolving or closing it.")
+    if detected_on and str(resolved_on) < str(detected_on):
+        raise ValueError("The resolution time cannot be before the detection time.")
+    if not str(resolution_summary or "").strip():
+        raise ValueError("Record a resolution summary before resolving or closing an incident.")
+
+
+def crisis_closure(status: str, declared_on: object, stood_down_on: object,
+                   outcome_summary: object) -> None:
+    """Stood-down and closed crises must record when and with what outcome."""
+    if status not in ("Stood Down", "Closed"):
+        return
+    if not stood_down_on:
+        raise ValueError("Record when the crisis was stood down before closing it.")
+    if declared_on and str(stood_down_on) < str(declared_on):
+        raise ValueError("The stand-down time cannot be before the declaration time.")
+    if not str(outcome_summary or "").strip():
+        raise ValueError("Record an outcome summary before standing down or closing a crisis.")
+
+
+def dependency_target(application: object, depends_on_application: object,
+                      depends_on_server: object, depends_on_database: object) -> None:
+    """A dependency names exactly one target component and never the application itself."""
+    targets = [t for t in (depends_on_application, depends_on_server, depends_on_database) if t]
+    if len(targets) != 1:
+        raise ValueError("Select exactly one component this application depends on.")
+    if depends_on_application and depends_on_application == application:
+        raise ValueError("An application cannot depend on itself.")
+
+
 def exercise_completion(status: str, conducted_on: object, result: object, summary: object,
                         objective_outcomes: list) -> None:
     """A completed exercise must carry its evidence; other statuses are unrestricted."""

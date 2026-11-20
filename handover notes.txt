@@ -1,0 +1,9 @@
+Handover is secured in three places, so any agent can pick up tomorrow:
+
+README.md — pushed to GitHub (5aad410): new Roadmap section at the top documenting Phase 1 as functionally complete (with the remaining verification items), the agreed Phase 2 order — Incident Management → Crisis Management → Infrastructure Inventory → Recovery Intelligence with scope notes for each, and the Phase 3 SaaS layer. This is the versioned source of truth.
+
+Session handover file (files/phase2-handover.md, persists across sessions): all the operational knowledge a new agent needs — UAT access and tunnel recovery, the proven hot-deploy and image-release pipeline, the ssh quoting pitfalls, the "GeeksOnTap demo data is sacred" rule, demo user accounts, how to add DocTypes/validation/reports following the established patterns, and the agreed Incident Management design notes (links to risks, plans, call trees; feeds Crisis Management later).
+
+Agent memory: stored that the README is the authoritative status log/roadmap to read first when resuming this project.
+
+Tomorrow's session can simply start with "continue with Phase 2" — the roadmap and handover notes contain everything needed to begin Incident Management. Current state at close: UAT healthy on image phase1-20261117d, all backups checksummed, 19 tests green, repo clean and pushed. See you tomorrow! 

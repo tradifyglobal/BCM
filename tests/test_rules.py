@@ -4,8 +4,11 @@ from datetime import date, timedelta
 from continuity360.rules import (
     call_tree_span,
     call_tree_structure,
+    crisis_closure,
     date_order,
+    dependency_target,
     exercise_completion,
+    incident_lifecycle,
     next_bcp_version,
     recovery_objectives,
     review_reminder_slot,
@@ -140,3 +143,50 @@ class CallTreeTests(unittest.TestCase):
     def test_span_ignores_self_calls_and_unknown_callers(self):
         self.assertEqual(call_tree_span(
             [("a", "a")] + [(f"m{i}", "ghost") for i in range(9)]), [])
+
+
+class IncidentTests(unittest.TestCase):
+    def test_resolution_requires_time_order_and_summary(self):
+        incident_lifecycle("Resolved", "2026-11-20 09:00:00", "2026-11-20 11:30:00", "Restored.")
+        for status, detected, resolved, summary in (
+            ("Resolved", "2026-11-20 09:00:00", None, "Restored."),
+            ("Closed", "2026-11-20 09:00:00", "2026-11-20 08:00:00", "Restored."),
+            ("Resolved", "2026-11-20 09:00:00", "2026-11-20 11:30:00", "  "),
+        ):
+            with self.subTest(status=status), self.assertRaises(ValueError):
+                incident_lifecycle(status, detected, resolved, summary)
+
+    def test_open_statuses_need_no_resolution(self):
+        for status in ("Open", "Investigating", "Mitigated"):
+            with self.subTest(status=status):
+                incident_lifecycle(status, "2026-11-20 09:00:00", None, None)
+
+
+class CrisisTests(unittest.TestCase):
+    def test_stand_down_requires_time_order_and_outcome(self):
+        crisis_closure("Stood Down", "2026-11-20 09:00:00", "2026-11-20 18:00:00", "Contained.")
+        for status, declared, stood_down, outcome in (
+            ("Stood Down", "2026-11-20 09:00:00", None, "Contained."),
+            ("Closed", "2026-11-20 09:00:00", "2026-11-20 08:00:00", "Contained."),
+            ("Closed", "2026-11-20 09:00:00", "2026-11-20 18:00:00", ""),
+        ):
+            with self.subTest(status=status), self.assertRaises(ValueError):
+                crisis_closure(status, declared, stood_down, outcome)
+
+    def test_active_statuses_need_no_outcome(self):
+        for status in ("Declared", "Managing"):
+            with self.subTest(status=status):
+                crisis_closure(status, "2026-11-20 09:00:00", None, None)
+
+
+class DependencyTests(unittest.TestCase):
+    def test_exactly_one_target_is_required(self):
+        dependency_target("app-a", None, "srv-1", None)
+        for targets in ((None, None, None), ("app-b", "srv-1", None),
+                        ("app-b", "srv-1", "db-1")):
+            with self.subTest(targets=targets), self.assertRaises(ValueError):
+                dependency_target("app-a", *targets)
+
+    def test_self_dependency_is_rejected(self):
+        with self.assertRaises(ValueError):
+            dependency_target("app-a", "app-a", None, None)

@@ -417,6 +417,185 @@ define("C360 Corrective Action", [
 ], title_field="action_title", editors=(RISK, IT, BCP_AUTHOR),
     readers=(AUDITOR, BCP_MANAGER, BCP_EXECUTIVE))
 
+# ---------------------------------------------------------------- Phase 2: incidents
+
+define("C360 Incident Timeline Entry", [
+    field("entry_time", "Time", "Datetime", reqd=1, in_list_view=1),
+    choice("entry_type", "Entry type",
+           "Detection\nEscalation\nAction\nCommunication\nStatus Change\nResolution",
+           reqd=1, in_list_view=1),
+    field("details", "Details", "Small Text", reqd=1, in_list_view=1),
+    link("recorded_by", "Recorded by", "User", reqd=1),
+], istable=1, permissions=[])
+
+define("C360 Incident Escalation", [
+    field("sequence", "Escalation level", "Int", reqd=1, in_list_view=1),
+    link("escalate_to", "Escalate to", "User", reqd=1, in_list_view=1),
+    field("criteria", "Escalation criteria", "Small Text", reqd=1, in_list_view=1),
+], istable=1, permissions=[])
+
+define("C360 Incident", [
+    field("incident_title", "Incident title", reqd=1, in_list_view=1), company(),
+    choice("incident_type", "Incident type",
+           "IT Outage\nCyber Security\nFacility\nSupplier\nPeople\nData Loss\nOther",
+           reqd=1, in_list_view=1),
+    choice("severity", "Severity", "Low\nMedium\nHigh\nCritical", reqd=1, in_list_view=1),
+    choice("status", "Status", "Open\nInvestigating\nMitigated\nResolved\nClosed",
+           default="Open", reqd=1, in_list_view=1),
+    owner(),
+    link("reported_by", "Reported by", "User", reqd=1),
+    field("detected_on", "Detected on", "Datetime", reqd=1),
+    field("resolved_on", "Resolved on", "Datetime"),
+    field("description", "What happened", "Text Editor", reqd=1),
+    link("business_process", "Affected business process", "C360 Business Process"),
+    link("risk", "Related risk", "C360 Risk"),
+    link("recovery_plan", "Activated recovery plan", "C360 Recovery Plan"),
+    link("business_continuity_plan", "Activated business continuity plan",
+         "C360 Business Continuity Plan"),
+    link("call_tree", "Call tree used", "C360 Call Tree"),
+    field("escalations", "Escalation chain", "Table", options="C360 Incident Escalation"),
+    field("timeline", "Timeline", "Table", options="C360 Incident Timeline Entry"),
+    field("impact_summary", "Impact summary", "Small Text"),
+    field("root_cause", "Root cause", "Small Text"),
+    field("resolution_summary", "Resolution summary", "Small Text"),
+], title_field="incident_title", editors=(IT, RISK),
+    readers=(AUDITOR, BCP_AUTHOR, BCP_MANAGER, BCP_EXECUTIVE))
+
+# ------------------------------------------------------------------ Phase 2: crisis
+
+define("C360 Crisis Log Entry", [
+    field("logged_on", "Time", "Datetime", reqd=1, in_list_view=1),
+    choice("entry_type", "Entry type", "Decision\nAction\nSituation Update\nCommunication",
+           reqd=1, in_list_view=1),
+    field("details", "Details", "Small Text", reqd=1, in_list_view=1),
+    link("recorded_by", "Recorded by", "User", reqd=1),
+], istable=1, permissions=[])
+
+define("C360 Crisis Communication", [
+    choice("audience", "Audience", "Employees\nCustomers\nRegulators\nSuppliers\nMedia\nExecutives",
+           reqd=1, in_list_view=1),
+    choice("channel", "Channel", "Email\nPhone\nSMS\nStatus Page\nPress Release\nBriefing",
+           reqd=1, in_list_view=1),
+    link("responsible", "Responsible", "User", reqd=1, in_list_view=1),
+    field("message_summary", "Message summary", "Small Text", reqd=1),
+    field("sent_on", "Sent on", "Datetime"),
+], istable=1, permissions=[])
+
+define("C360 Crisis BCP Link", [
+    link("business_continuity_plan", "Business continuity plan",
+         "C360 Business Continuity Plan", reqd=1, in_list_view=1),
+], istable=1, permissions=[])
+
+define("C360 Crisis Recovery Link", [
+    link("recovery_plan", "Recovery plan", "C360 Recovery Plan", reqd=1, in_list_view=1),
+], istable=1, permissions=[])
+
+define("C360 Communication Plan", [
+    field("plan_name", "Plan name", reqd=1, in_list_view=1), company(), owner(),
+    choice("audience", "Audience", "Employees\nCustomers\nRegulators\nSuppliers\nMedia\nExecutives",
+           reqd=1, in_list_view=1),
+    choice("channel", "Primary channel", "Email\nPhone\nSMS\nStatus Page\nPress Release\nBriefing",
+           reqd=1, in_list_view=1),
+    field("trigger", "When to use", "Small Text", reqd=1),
+    field("message_template", "Message template", "Text Editor", reqd=1),
+    link("approver", "Message approver", "User"),
+], title_field="plan_name", editors=(RISK,),
+    readers=(IT, AUDITOR, BCP_AUTHOR, BCP_MANAGER, BCP_EXECUTIVE))
+
+define("C360 Crisis Event", [
+    field("crisis_title", "Crisis title", reqd=1, in_list_view=1), company(),
+    choice("level", "Crisis level",
+           "Level 1 - Site\nLevel 2 - Significant\nLevel 3 - Organisation-wide",
+           reqd=1, in_list_view=1),
+    choice("status", "Status", "Declared\nManaging\nStood Down\nClosed",
+           default="Declared", reqd=1, in_list_view=1),
+    link("crisis_commander", "Crisis commander", "User", reqd=1),
+    link("deputy_commander", "Deputy commander", "User"),
+    link("incident", "Triggering incident", "C360 Incident"),
+    link("call_tree", "Call tree activated", "C360 Call Tree"),
+    field("declared_on", "Declared on", "Datetime", reqd=1),
+    field("stood_down_on", "Stood down on", "Datetime"),
+    field("situation_summary", "Situation summary", "Text Editor", reqd=1),
+    field("activated_bcps", "Activated business continuity plans", "Table",
+          options="C360 Crisis BCP Link"),
+    field("activated_recovery_plans", "Activated recovery plans", "Table",
+          options="C360 Crisis Recovery Link"),
+    field("log", "Decision and action log", "Table", options="C360 Crisis Log Entry"),
+    field("communications", "Communications issued", "Table",
+          options="C360 Crisis Communication"),
+    field("outcome_summary", "Outcome summary", "Small Text"),
+], title_field="crisis_title", editors=(RISK,),
+    readers=(IT, AUDITOR, BCP_AUTHOR, BCP_MANAGER, BCP_EXECUTIVE))
+
+# ---------------------------------------------------- Phase 2: infrastructure inventory
+
+define("C360 Application Process Link", [
+    link("business_process", "Business process", "C360 Business Process",
+         reqd=1, in_list_view=1),
+], istable=1, permissions=[])
+
+define("C360 Application", [
+    field("application_name", "Application name", reqd=1, in_list_view=1), company(), owner(),
+    choice("criticality", "Criticality", "Low\nMedium\nHigh\nCritical", reqd=1, in_list_view=1),
+    choice("hosting", "Hosting model", "On-Premises\nAWS\nAzure\nGoogle Cloud\nSaaS\nHybrid",
+           reqd=1, in_list_view=1),
+    link("vendor", "Vendor", "C360 Vendor"),
+    link("recovery_plan", "Recovery plan", "C360 Recovery Plan"),
+    field("supported_processes", "Business processes supported", "Table",
+          options="C360 Application Process Link"),
+    description(),
+], title_field="application_name", editors=(IT,), readers=(RISK, AUDITOR))
+
+define("C360 Server", [
+    field("server_name", "Server name", reqd=1, in_list_view=1), company(), owner(),
+    choice("environment", "Environment", "Production\nStaging\nDevelopment\nDisaster Recovery",
+           reqd=1, in_list_view=1),
+    choice("platform", "Platform",
+           "AWS EC2\nAzure Virtual Machine\nAzure Kubernetes Service\n"
+           "On-Premises Virtual Machine\nOn-Premises Physical\nOther Cloud",
+           reqd=1, in_list_view=1),
+    link("location", "Location", "C360 Location"),
+    field("operating_system", "Operating system"),
+    description(),
+], title_field="server_name", editors=(IT,), readers=(RISK, AUDITOR))
+
+define("C360 Database Instance", [
+    field("database_name", "Database name", reqd=1, in_list_view=1), company(), owner(),
+    choice("engine", "Engine", "MariaDB\nMySQL\nPostgreSQL\nSQL Server\nOracle\nMongoDB\nOther",
+           reqd=1, in_list_view=1),
+    choice("platform", "Platform", "AWS RDS\nAzure SQL\nAzure Database\nSelf-Managed\nSaaS\nOther",
+           reqd=1, in_list_view=1),
+    link("server", "Hosted on server", "C360 Server"),
+    description(),
+], title_field="database_name", editors=(IT,), readers=(RISK, AUDITOR))
+
+define("C360 IT Dependency", [
+    field("dependency_title", "Dependency", reqd=1, in_list_view=1), company(),
+    link("application", "Dependent application", "C360 Application", reqd=1, in_list_view=1),
+    choice("dependency_type", "Dependency type",
+           "Runs On\nStores Data In\nIntegrates With\nSupplied By", reqd=1, in_list_view=1),
+    link("depends_on_application", "Depends on application", "C360 Application"),
+    link("depends_on_server", "Depends on server", "C360 Server"),
+    link("depends_on_database", "Depends on database", "C360 Database Instance"),
+    field("notes", "Notes", "Small Text"),
+], title_field="dependency_title", editors=(IT,), readers=(RISK, AUDITOR))
+
+# ----------------------------------------------- Phase 2: recovery intelligence records
+
+define("C360 Outage Simulation", [
+    field("simulation_title", "Simulation title", reqd=1, in_list_view=1), company(), owner(),
+    choice("target_type", "Component type", "Application\nServer\nDatabase",
+           reqd=1, in_list_view=1),
+    link("target_application", "Application", "C360 Application"),
+    link("target_server", "Server", "C360 Server"),
+    link("target_database", "Database", "C360 Database Instance"),
+    field("simulated_on", "Simulated on", "Datetime", reqd=1),
+    field("walkthrough", "Walkthrough result", "Long Text", read_only=1,
+          description="Illustrative workflow captured at simulation time; "
+                      "not a live infrastructure connection."),
+    field("notes", "Notes", "Small Text"),
+], title_field="simulation_title", editors=(IT, RISK), readers=(AUDITOR,))
+
 # Plan readers do not receive employee/contact-directory access independently.
 for plan_type, editor in (("C360 Recovery Plan", IT), ("C360 Business Continuity Plan", BCP_AUTHOR)):
     for permission in DOCTYPES[plan_type]["permissions"]:

@@ -16,18 +16,26 @@ compliance register create/edit browser journey, real SMTP delivery and reminder
 concurrency, a restore drill of a current release backup, an upgrade rehearsal and
 automated release asset versioning.
 
-**Phase 2 (operational modules) - next.** Planned order and rationale:
-1. Incident Management: incident recording, severity classification, escalation
-   chains, incident timeline, team notifications (reuses Phase 1 email plumbing).
-2. Crisis Management: crisis event coordination, communication plans, stakeholder
-   broadcasts, links from incidents to activated BCPs/DR plans and call trees.
-3. Application & Infrastructure Inventory: applications, servers, databases and
-   dependencies mapped to business processes (joins the existing BIA).
-4. IT Infrastructure Recovery Intelligence (differentiator): inventory of cloud and
-   on-premises systems with simulated outage walkthroughs - incident detected ->
-   impact analysis -> plan activation -> runbooks and RTO/RPO -> validation ->
-   post-incident report. Illustrative workflow only in Phase 2; no live cloud
-   connections.
+**Phase 2 (operational modules) - implemented.** All four modules are built, verified
+on UAT and shipped in image `continuity360:phase2-20261120`:
+1. Incident Management: incidents with type, severity, lifecycle statuses, escalation
+   chains, timelines (status changes are logged automatically), links to processes,
+   risks, plans and call trees, and in-app alerts to the incident manager and
+   escalation chain for high and critical severities.
+2. Crisis Management: crisis events with levels, a named commander and deputy
+   (must differ), triggering incident, activated BCPs/recovery plans and call tree,
+   a decision/action log, communications issued per audience and channel, and
+   standing communication plan templates. Standing down requires a timed outcome.
+3. Application & Infrastructure Inventory: applications (criticality, hosting,
+   vendor, recovery plan, supported business processes), servers, database instances
+   and a typed dependency map (runs on / stores data in / integrates with) with
+   exactly-one-target validation.
+4. IT Infrastructure Recovery Intelligence (differentiator): a Recovery Intelligence
+   page that simulates a component outage and walks through six steps - incident
+   detected, business impact (affected applications through the dependency graph,
+   processes, departments), plan activation (BCPs and call trees), recovery runbooks
+   with RTO/RPO, validation guidance and a saved post-incident simulation record.
+   Illustrative workflow over recorded relationships; no live cloud connections.
 
 **Phase 3 (commercial SaaS layer).** Subscription plans (Starter/Professional/
 Enterprise), central tenant administration across Frappe sites, white labelling,
@@ -240,6 +248,60 @@ public and private file contents. This is not a production-ready deployment.
   DR plans and employees on one screen, each row linking to the record and each section
   respecting the viewer's role permissions. Supports `?department=` links.
 - Reproducible, localhost-only Docker development stack and GitHub Actions validation.
+
+## Phase 2 implementation
+
+- Incidents: recorded with type, severity (Low to Critical), status lifecycle
+  (Open/Investigating/Mitigated/Resolved/Closed), reporter, incident manager,
+  detection and resolution times, impact, root cause, and links to the affected
+  business process, related risk, activated recovery plan/BCP and call tree used.
+  Escalation chains name who is escalated to at which level and on what criteria;
+  escalation levels must be unique. Timelines record detection, escalation, actions,
+  communications and resolution; a Status Change entry is appended automatically
+  whenever the status changes. Resolving or closing requires a resolution time after
+  detection and a resolution summary. Creating a High or Critical incident raises
+  in-app alerts for the incident manager and everyone on the escalation chain.
+  Editable by IT Managers and Risk Managers.
+- Crisis events: levels 1-3, status Declared/Managing/Stood Down/Closed, a required
+  crisis commander and optional deputy (must be different, enabled users), the
+  triggering incident, activated BCPs and recovery plans, the call tree activated,
+  a decision/action log (status changes logged automatically) and communications
+  issued per audience/channel with responsible owner and sent time. Standing down or
+  closing requires a stand-down time after declaration and an outcome summary.
+  Standing communication plans hold pre-approved audience/channel templates with
+  triggers, owners and approvers. Editable by Risk Managers.
+- Infrastructure inventory: applications (criticality, hosting model, vendor,
+  recovery plan, supported business processes), servers (environment, platform,
+  location, OS), database instances (engine, platform, hosting server) and typed
+  dependencies (runs on / stores data in / integrates with / supplied by) that name
+  exactly one target component and never the application itself. Editable by IT
+  Managers; company-link integrity enforced throughout.
+- Recovery Intelligence: the Recovery Intelligence desk page simulates an outage of
+  any application, server or database and renders the six-step walkthrough from the
+  product vision - incident detected, business impact analysis (affected applications
+  resolved through the dependency graph including downstream integrations, business
+  processes, departments), recovery plan activation (covering BCPs and Active call
+  trees), recovery procedures with RTO/RPO targets, validation guidance and a
+  post-incident record. Every simulation is stored as an Outage Simulation document
+  with the full walkthrough JSON. Clearly labelled illustrative: it reasons over
+  recorded relationships, with no live infrastructure connection.
+- Reporting: two new PDF reports (Incident and Crisis Report; Infrastructure and
+  Recovery Intelligence Report) with the same professional styling, department
+  scoping, badges and document control as Phase 1; the combined BCM report now has
+  eight chapters. The management dashboard adds open-incident and active-crisis
+  metrics. Navigation gains Incident & Crisis and Infrastructure groups (top bar and
+  sidebar).
+- Verification: 25 domain tests pass (incident lifecycle, crisis closure, dependency
+  target rules); server-side guards verified for incident resolution and dependency
+  targets; alert creation verified for a Critical incident; the auto-appended
+  status-change timeline verified; all three new report PDFs text-verified; the
+  Recovery Intelligence page exercised in the browser end to end, correctly walking
+  a database outage through downstream applications to departments, plans, call
+  trees and runbooks. GeeksOnTap demo data now includes three applications, two
+  servers, two databases, five dependencies, a resolved Critical incident with
+  escalations and timeline, an open Medium incident, a closed Level 2 crisis with
+  log and communications, two standing communication plans and saved outage
+  simulations.
 
 DocTypes use the `C360` prefix to avoid collisions with ERPNext/HRMS. They are defined in
 `continuity360/schema.py` and synchronised as app-owned custom DocTypes during installation

@@ -221,6 +221,109 @@ def validate_call_tree(doc, method=None) -> None:
             indicator="orange", alert=True)
 
 
+def validate_incident(doc, method=None) -> None:
+    for fieldname, target in (
+        ("business_process", "C360 Business Process"),
+        ("risk", "C360 Risk"),
+        ("recovery_plan", "C360 Recovery Plan"),
+        ("business_continuity_plan", "C360 Business Continuity Plan"),
+        ("call_tree", "C360 Call Tree"),
+    ):
+        _same_company(doc, fieldname, target)
+    _apply(rules.incident_lifecycle, doc.status, doc.detected_on, doc.resolved_on,
+           doc.resolution_summary)
+    levels = [row.sequence for row in doc.escalations]
+    if len(set(levels)) != len(levels):
+        frappe.throw(_("Escalation levels must be unique."))
+    previous = doc.get_doc_before_save()
+    if previous and previous.status != doc.status:
+        doc.append("timeline", {
+            "entry_time": now_datetime(), "entry_type": "Status Change",
+            "details": _("Status changed from {0} to {1}.").format(previous.status, doc.status),
+            "recorded_by": frappe.session.user,
+        })
+
+
+def notify_incident(doc, method=None) -> None:
+    """High and critical incidents alert the incident manager and the escalation chain."""
+    if doc.severity not in ("High", "Critical"):
+        return
+    recipients = {doc.responsible_user} | {row.escalate_to for row in doc.escalations}
+    recipients.discard(frappe.session.user)
+    for user in sorted(recipients):
+        if not frappe.db.get_value("User", user, "enabled"):
+            continue
+        frappe.get_doc({
+            "doctype": "Notification Log", "type": "Alert", "for_user": user,
+            "document_type": doc.doctype, "document_name": doc.name,
+            "subject": _("{0} incident: {1}").format(doc.severity, doc.incident_title),
+            "email_content": _("A {0} severity incident was recorded: {1}. "
+                               "You are named on its response or escalation chain.").format(
+                                   doc.severity, doc.incident_title),
+        }).insert(ignore_permissions=True)
+
+
+def validate_crisis(doc, method=None) -> None:
+    _same_company(doc, "incident", "C360 Incident")
+    _same_company(doc, "call_tree", "C360 Call Tree")
+    _validate_company_rows(doc, "activated_bcps", "business_continuity_plan",
+                           "C360 Business Continuity Plan")
+    _validate_company_rows(doc, "activated_recovery_plans", "recovery_plan",
+                           "C360 Recovery Plan")
+    if doc.deputy_commander and doc.deputy_commander == doc.crisis_commander:
+        frappe.throw(_("The deputy commander must be a different person from the commander."))
+    for user in (doc.crisis_commander, doc.deputy_commander):
+        if user and not frappe.db.get_value("User", user, "enabled"):
+            frappe.throw(_("Crisis commanders must be enabled users."))
+    _apply(rules.crisis_closure, doc.status, doc.declared_on, doc.stood_down_on,
+           doc.outcome_summary)
+    previous = doc.get_doc_before_save()
+    if previous and previous.status != doc.status:
+        doc.append("log", {
+            "logged_on": now_datetime(), "entry_type": "Situation Update",
+            "details": _("Status changed from {0} to {1}.").format(previous.status, doc.status),
+            "recorded_by": frappe.session.user,
+        })
+
+
+def validate_application(doc, method=None) -> None:
+    _same_company(doc, "vendor", "C360 Vendor")
+    _same_company(doc, "recovery_plan", "C360 Recovery Plan")
+    _validate_company_rows(doc, "supported_processes", "business_process",
+                           "C360 Business Process")
+
+
+def validate_database_instance(doc, method=None) -> None:
+    _same_company(doc, "server", "C360 Server")
+
+
+def validate_dependency(doc, method=None) -> None:
+    _apply(rules.dependency_target, doc.application, doc.depends_on_application,
+           doc.depends_on_server, doc.depends_on_database)
+    for fieldname, target in (
+        ("application", "C360 Application"),
+        ("depends_on_application", "C360 Application"),
+        ("depends_on_server", "C360 Server"),
+        ("depends_on_database", "C360 Database Instance"),
+    ):
+        _same_company(doc, fieldname, target)
+
+
+def validate_simulation(doc, method=None) -> None:
+    targets = {"Application": doc.target_application, "Server": doc.target_server,
+               "Database": doc.target_database}
+    if not targets.get(doc.target_type):
+        frappe.throw(_("Select the {0} this simulation targets.").format(_(doc.target_type)))
+    if sum(1 for value in targets.values() if value) != 1:
+        frappe.throw(_("Select exactly one target component."))
+    for fieldname, target in (
+        ("target_application", "C360 Application"),
+        ("target_server", "C360 Server"),
+        ("target_database", "C360 Database Instance"),
+    ):
+        _same_company(doc, fieldname, target)
+
+
 def _validate_controlled_plan(doc, label) -> None:
     if doc.is_new() and (doc.approval_status != "Draft" or doc.docstatus != 0):
         frappe.throw(_("New plans must begin as drafts."))

@@ -6,7 +6,7 @@ app_license = "Proprietary"
 app_home = "/desk/continuity360"
 
 # The version query forces browsers to refetch these unversioned assets after a release.
-ASSET_VERSION = "20261117-9"
+ASSET_VERSION = "20261120-1"
 app_include_js = [
     f"/assets/continuity360/js/continuity360.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/bcp_plan.js?v={ASSET_VERSION}",
@@ -39,6 +39,15 @@ doc_events = {
     "C360 BC Exercise": {"validate": "continuity360.validation.validate_exercise"},
     "C360 Corrective Action": {"validate": "continuity360.validation.validate_corrective_action"},
     "C360 Call Tree": {"validate": "continuity360.validation.validate_call_tree"},
+    "C360 Incident": {
+        "validate": "continuity360.validation.validate_incident",
+        "after_insert": "continuity360.validation.notify_incident",
+    },
+    "C360 Crisis Event": {"validate": "continuity360.validation.validate_crisis"},
+    "C360 Application": {"validate": "continuity360.validation.validate_application"},
+    "C360 Database Instance": {"validate": "continuity360.validation.validate_database_instance"},
+    "C360 IT Dependency": {"validate": "continuity360.validation.validate_dependency"},
+    "C360 Outage Simulation": {"validate": "continuity360.validation.validate_simulation"},
     "C360 Department": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Employee": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Location": {"validate": "continuity360.validation.validate_company_links"},

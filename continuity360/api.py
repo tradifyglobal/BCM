@@ -9,6 +9,8 @@ METRICS = (
     ("Business processes", "C360 Business Process", {}),
     ("Open risks", "C360 Risk", {"status": ["in", ["Open", "Treating"]]}),
     ("Approved plans", "C360 Recovery Plan", {"docstatus": 1}),
+    ("Open incidents", "C360 Incident", {"status": ["in", ["Open", "Investigating", "Mitigated"]]}),
+    ("Active crises", "C360 Crisis Event", {"status": ["in", ["Declared", "Managing"]]}),
     ("Overdue treatments", "C360 Risk Treatment", {"status": ["!=", "Completed"], "due_date": ["<", "Today"]}),
     ("Plans needing review", "C360 Recovery Plan", {"docstatus": 1, "review_date": ["<", "Today"]}),
 )

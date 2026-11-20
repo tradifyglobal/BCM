@@ -1,0 +1,9 @@
+{
+ "doctype": "Page",
+ "name": "recovery-intelligence",
+ "page_name": "recovery-intelligence",
+ "title": "Recovery Intelligence",
+ "module": "Continuity360",
+ "standard": "Yes",
+ "roles": []
+}

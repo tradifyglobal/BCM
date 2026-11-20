@@ -29,6 +29,16 @@
         { label: "Testing & Exercises", items: [
             ["Exercises", "C360 BC Exercise"], ["Corrective Actions", "C360 Corrective Action"],
         ] },
+        { label: "Incident & Crisis", items: [
+            ["Incidents", "C360 Incident"], ["Crisis Events", "C360 Crisis Event"],
+            ["Communication Plans", "C360 Communication Plan"],
+        ] },
+        { label: "Infrastructure", items: [
+            ["Applications", "C360 Application"], ["Servers", "C360 Server"],
+            ["Databases", "C360 Database Instance"], ["Dependencies", "C360 IT Dependency"],
+            ["Recovery Intelligence", null, "recovery-intelligence"],
+            ["Outage Simulations", "C360 Outage Simulation"],
+        ] },
         { label: "Compliance", items: [["Control Register", "C360 Compliance Control"]] },
         { label: "Reports", items: [
             ["Report Centre", null, "report-centre"],
@@ -77,7 +87,7 @@
                 <div class="c360-sidebar-title">${escape("YOUR WORKSPACE")}</div>
                 ${visible.map((group) => `<section><h2>${escape(group.label)}</h2>
                     ${group.items.map(link).join("")}</section>`).join("")}
-                <div class="c360-sidebar-foot">${escape("Phase 1")}<br>${escape("BCM foundation")}</div>
+                <div class="c360-sidebar-foot">${escape("Phase 2")}<br>${escape("Operational resilience")}</div>
             </aside>`;
         document.body.appendChild(shell);
         const topbar = shell.querySelector(".c360-topbar");

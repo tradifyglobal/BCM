@@ -67,6 +67,10 @@ STATUS_COLORS = {
     "Needs Improvement": ("#f08c00", "#fff"), "Ineffective": ("#d9342b", "#fff"),
     "Met": ("#2f9e44", "#fff"), "Partially Met": ("#f3c300", "#4a3b00"),
     "Not Met": ("#d9342b", "#fff"),
+    "Investigating": ("#f08c00", "#fff"), "Mitigated": ("#f3c300", "#4a3b00"),
+    "Resolved": ("#2f9e44", "#fff"),
+    "Declared": ("#d9342b", "#fff"), "Managing": ("#f08c00", "#fff"),
+    "Stood Down": ("#2f9e44", "#fff"),
 }
 
 
@@ -732,6 +736,195 @@ def _testing_body(department: str | None) -> str:
     return body
 
 
+def _incident_body(department: str | None) -> str:
+    incidents = _docs("C360 Incident", order_by="detected_on desc")
+    if incidents is None:
+        frappe.throw(_("Your role cannot view incidents."), frappe.PermissionError)
+    processes = _titles("C360 Business Process", "process_name")
+    risks = _titles("C360 Risk", "risk_title")
+    recovery_titles = _titles("C360 Recovery Plan", "plan_title")
+    bcp_titles = _titles("C360 Business Continuity Plan", "plan_title")
+    tree_titles = _titles("C360 Call Tree", "tree_name")
+    body = ""
+    if department:
+        scoped = set(_department_processes(department) or [])
+        incidents = [i for i in incidents if i.business_process in scoped]
+        body += "<p>" + escape_html(_(
+            "Scoped to incidents affecting this department's business processes; incidents "
+            "without a linked process are excluded.")) + "</p>"
+    counts: dict[tuple, int] = {}
+    for incident in incidents:
+        key = (incident.severity, incident.status)
+        counts[key] = counts.get(key, 0) + 1
+    body += "<h2>" + escape_html(_("Incident summary")) + "</h2>" + _table(
+        [_("Severity"), _("Status"), _("Incidents")],
+        [[_rating_badge(severity), _status_badge(status), total]
+         for (severity, status), total in sorted(counts.items())])
+    body += "<h2>" + escape_html(_("Incident register")) + "</h2>" + _table(
+        [_("Incident"), _("Type"), _("Severity"), _("Status"), _("Detected"), _("Resolved"),
+         _("Incident manager")],
+        [[i.incident_title, i.incident_type, _rating_badge(i.severity), _status_badge(i.status),
+          _when(i.detected_on), _when(i.resolved_on), _user(i.responsible_user)]
+         for i in incidents])
+    body += "<h2>" + escape_html(_("Incident details and timelines")) + "</h2>"
+    for incident in incidents:
+        body += f"<div class='detail'><h3>{escape_html(incident.incident_title)}</h3>"
+        body += _kv([
+            (_("What happened"), _text(incident.description)),
+            (_("Impact"), _text(incident.impact_summary)),
+            (_("Affected process"), processes.get(incident.business_process,
+                                                  incident.business_process or "")),
+            (_("Related risk"), risks.get(incident.risk, incident.risk or "")),
+            (_("Activated recovery plan"), recovery_titles.get(
+                incident.recovery_plan, incident.recovery_plan or "")),
+            (_("Activated BCP"), bcp_titles.get(
+                incident.business_continuity_plan, incident.business_continuity_plan or "")),
+            (_("Call tree used"), tree_titles.get(incident.call_tree, incident.call_tree or "")),
+            (_("Root cause"), _text(incident.root_cause)),
+            (_("Resolution"), _text(incident.resolution_summary)),
+            (_("Reported by"), _user(incident.reported_by)),
+            (_("Incident manager"), _user(incident.responsible_user)),
+        ])
+        if incident.escalations:
+            body += _table([_("Level"), _("Escalate to"), _("Criteria")],
+                           [[row.sequence, _user(row.escalate_to), _text(row.criteria)]
+                            for row in incident.escalations])
+        if incident.timeline:
+            body += _table([_("Time"), _("Entry"), _("Details"), _("Recorded by")],
+                           [[_when(row.entry_time), row.entry_type, _text(row.details),
+                             _user(row.recorded_by)] for row in incident.timeline])
+        body += "</div>"
+    if not incidents:
+        body += "<p>" + escape_html(_("No incidents recorded in this scope yet.")) + "</p>"
+
+    crises = _docs("C360 Crisis Event", order_by="declared_on desc")
+    body += "<h2>" + escape_html(_("Crisis events")) + "</h2>"
+    if crises is None:
+        body += "<p>" + escape_html(_("Crisis events are not visible to your role.")) + "</p>"
+        return body
+    if department:
+        incident_names = {i.name for i in incidents}
+        crises = [c for c in crises if c.incident in incident_names]
+        body += "<p>" + escape_html(_(
+            "Scoped to crises triggered by this department's incidents.")) + "</p>"
+    incident_titles = _titles("C360 Incident", "incident_title")
+    body += _table(
+        [_("Crisis"), _("Level"), _("Status"), _("Commander"), _("Declared"), _("Stood down"),
+         _("Triggering incident")],
+        [[c.crisis_title, c.level, _status_badge(c.status), _user(c.crisis_commander),
+          _when(c.declared_on), _when(c.stood_down_on),
+          incident_titles.get(c.incident, c.incident or "")] for c in crises])
+    for crisis in crises:
+        body += f"<div class='detail'><h3>{escape_html(crisis.crisis_title)}</h3>"
+        body += _kv([
+            (_("Situation"), _text(crisis.situation_summary)),
+            (_("Commander"), _user(crisis.crisis_commander)),
+            (_("Deputy"), _user(crisis.deputy_commander)),
+            (_("Call tree activated"), tree_titles.get(crisis.call_tree, crisis.call_tree or "")),
+            (_("Activated BCPs"), ", ".join(bcp_titles.get(
+                row.business_continuity_plan, row.business_continuity_plan)
+                for row in crisis.activated_bcps)),
+            (_("Activated recovery plans"), ", ".join(recovery_titles.get(
+                row.recovery_plan, row.recovery_plan)
+                for row in crisis.activated_recovery_plans)),
+            (_("Outcome"), _text(crisis.outcome_summary)),
+        ])
+        if crisis.log:
+            body += _table([_("Time"), _("Entry"), _("Details"), _("Recorded by")],
+                           [[_when(row.logged_on), row.entry_type, _text(row.details),
+                             _user(row.recorded_by)] for row in crisis.log])
+        if crisis.communications:
+            body += "<h3>" + escape_html(_("Communications issued")) + "</h3>"
+            body += _table([_("Audience"), _("Channel"), _("Responsible"), _("Message"),
+                            _("Sent")],
+                           [[row.audience, row.channel, _user(row.responsible),
+                             _text(row.message_summary), _when(row.sent_on)]
+                            for row in crisis.communications])
+        body += "</div>"
+    if not crises:
+        body += "<p>" + escape_html(_("No crisis events recorded in this scope yet.")) + "</p>"
+    plans = _rows("C360 Communication Plan", fields=[
+        "plan_name", "audience", "channel", "trigger", "responsible_user", "approver"])
+    if plans:
+        body += "<h2>" + escape_html(_("Standing communication plans")) + "</h2>" + _table(
+            [_("Plan"), _("Audience"), _("Channel"), _("When to use"), _("Owner"),
+             _("Approver")],
+            [[p.plan_name, p.audience, p.channel, _text(p.trigger),
+              _user(p.responsible_user), _user(p.approver)] for p in plans])
+    return body
+
+
+def _infrastructure_body(department: str | None) -> str:
+    applications = _docs("C360 Application", order_by="criticality desc, application_name asc")
+    if applications is None:
+        frappe.throw(_("Your role cannot view the application inventory."),
+                     frappe.PermissionError)
+    processes = _titles("C360 Business Process", "process_name")
+    recovery_titles = _titles("C360 Recovery Plan", "plan_title")
+    vendors = _titles("C360 Vendor", "vendor_name")
+    body = ""
+    if department:
+        scoped = set(_department_processes(department) or [])
+        applications = [a for a in applications
+                        if any(row.business_process in scoped for row in a.supported_processes)]
+        body += "<p>" + escape_html(_(
+            "Scoped to applications supporting this department's business processes; servers, "
+            "databases and simulations are organisation-wide.")) + "</p>"
+    body += "<h2>" + escape_html(_("Application inventory")) + "</h2>" + _table(
+        [_("Application"), _("Criticality"), _("Hosting"), _("Vendor"), _("Recovery plan"),
+         _("Supports processes"), _("Owner")],
+        [[a.application_name, _rating_badge(a.criticality), a.hosting,
+          vendors.get(a.vendor, a.vendor or ""),
+          recovery_titles.get(a.recovery_plan, a.recovery_plan or ""),
+          ", ".join(processes.get(row.business_process, row.business_process)
+                    for row in a.supported_processes),
+          _user(a.responsible_user)] for a in applications])
+    servers = _rows("C360 Server", fields=["name", "server_name", "environment", "platform",
+                                           "operating_system", "responsible_user"]) or []
+    body += "<h2>" + escape_html(_("Server inventory")) + "</h2>" + _table(
+        [_("Server"), _("Environment"), _("Platform"), _("Operating system"), _("Owner")],
+        [[s.server_name, s.environment, s.platform, s.operating_system or "",
+          _user(s.responsible_user)] for s in servers])
+    server_names = {s.name: s.server_name for s in servers}
+    databases = _rows("C360 Database Instance", fields=[
+        "name", "database_name", "engine", "platform", "server", "responsible_user"]) or []
+    database_names = {d.name: d.database_name for d in databases}
+    body += "<h2>" + escape_html(_("Database inventory")) + "</h2>" + _table(
+        [_("Database"), _("Engine"), _("Platform"), _("Hosted on"), _("Owner")],
+        [[d.database_name, d.engine, d.platform, server_names.get(d.server, d.server or ""),
+          _user(d.responsible_user)] for d in databases])
+    app_titles = {a.name: a.application_name for a in applications}
+    dependencies = _rows("C360 IT Dependency", fields=[
+        "application", "dependency_type", "depends_on_application", "depends_on_server",
+        "depends_on_database", "notes"]) or []
+    if department:
+        dependencies = [d for d in dependencies if d.application in app_titles]
+    all_apps = _titles("C360 Application", "application_name")
+    body += "<h2>" + escape_html(_("Dependency map")) + "</h2>" + _table(
+        [_("Application"), _("Dependency type"), _("Depends on"), _("Notes")],
+        [[all_apps.get(d.application, d.application), d.dependency_type,
+          all_apps.get(d.depends_on_application)
+          or server_names.get(d.depends_on_server)
+          or database_names.get(d.depends_on_database)
+          or d.depends_on_application or d.depends_on_server or d.depends_on_database,
+          _text(d.notes)] for d in dependencies])
+    simulations = _rows("C360 Outage Simulation", fields=[
+        "simulation_title", "target_type", "simulated_on", "responsible_user", "notes"],
+        order_by="simulated_on desc")
+    body += "<h2>" + escape_html(_("Outage simulations")) + "</h2>"
+    if simulations is None:
+        body += "<p>" + escape_html(_("Simulations are not visible to your role.")) + "</p>"
+    else:
+        body += _table(
+            [_("Simulation"), _("Component type"), _("Simulated on"), _("Run by"), _("Notes")],
+            [[s.simulation_title, s.target_type, _when(s.simulated_on),
+              _user(s.responsible_user), _text(s.notes)] for s in simulations])
+        body += "<p class='scope-note'>" + escape_html(_(
+            "Simulations are illustrative walkthroughs over recorded relationships, "
+            "not live infrastructure connections.")) + "</p>"
+    return body
+
+
 def _compliance_body(department: str | None) -> str:
     controls = _docs("C360 Compliance Control", order_by="framework asc, control_reference asc")
     if controls is None:
@@ -789,6 +982,20 @@ TESTING_CONTENTS = (
     (_("Exercise register"), ()),
     (_("Exercise details and outcomes"), (_("Objectives, participants and corrective actions"),)),
 )
+INCIDENT_CONTENTS = (
+    (_("Incident summary"), ()),
+    (_("Incident register"), ()),
+    (_("Incident details and timelines"), (_("Escalation chains and timelines"),)),
+    (_("Crisis events"), (_("Decision logs and communications"),)),
+    (_("Standing communication plans"), ()),
+)
+INFRA_CONTENTS = (
+    (_("Application inventory"), ()),
+    (_("Server inventory"), ()),
+    (_("Database inventory"), ()),
+    (_("Dependency map"), ()),
+    (_("Outage simulations"), ()),
+)
 COMPLIANCE_CONTENTS = (
     (_("Self-assessed status summary"), ()),
     (_("Controls by framework"), ()),
@@ -836,6 +1043,22 @@ def testing_report(department: str | None = None) -> None:
 
 
 @frappe.whitelist()
+def incident_report(department: str | None = None) -> None:
+    _authorize()
+    scope = _scope(department)
+    _serve("incident-report", _("Incident and Crisis Report"), scope,
+           _incident_body(department), INCIDENT_CONTENTS, department)
+
+
+@frappe.whitelist()
+def infrastructure_report(department: str | None = None) -> None:
+    _authorize()
+    scope = _scope(department)
+    _serve("infrastructure-report", _("Infrastructure and Recovery Intelligence Report"), scope,
+           _infrastructure_body(department), INFRA_CONTENTS, department)
+
+
+@frappe.whitelist()
 def compliance_report(department: str | None = None) -> None:
     _authorize()
     scope = _scope(department)
@@ -853,6 +1076,8 @@ def full_report(department: str | None = None) -> None:
         (_("Business Continuity Plans"), _bcp_body, BCP_CONTENTS),
         (_("Disaster Recovery"), _dr_body, DR_CONTENTS),
         (_("Testing and Exercises"), _testing_body, TESTING_CONTENTS),
+        (_("Incident and Crisis Management"), _incident_body, INCIDENT_CONTENTS),
+        (_("Infrastructure Inventory"), _infrastructure_body, INFRA_CONTENTS),
         (_("Compliance Controls"), _compliance_body, COMPLIANCE_CONTENTS),
     )
     body = ""
