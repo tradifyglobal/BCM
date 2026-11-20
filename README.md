@@ -191,6 +191,12 @@ public and private file contents. This is not a production-ready deployment.
 - Frappe change history plus mandatory revision reasons for recovery-plan content changes.
 - Compliance control register with customer-entered framework references, self-assessed
   status, owners and evidence references; no standards content is supplied.
+  ISO 22301:2019/Amd 1:2024 (February 2024) added two clause 4 requirements: the
+  organisation shall determine whether climate change is a relevant BCMS issue (4.1)
+  and interested parties can have climate-related requirements (4.2). Continuity360
+  accommodates this through the Environmental risk category and a customer-entered
+  compliance control evidencing the documented climate-relevance determination; the
+  GeeksOnTap demo includes such a control alongside its flood and power-failure risks.
 - Permission-aware dashboard with risk-rating and process-criticality charts, risk
   heatmap and management PDF endpoint. Charts use visible records, not sample data.
 - Report Centre page with a single department selector that scopes every report, six
