@@ -522,6 +522,12 @@ the replaced image is retained as `continuity360:rollback-phase2-20261120`.
 Post-deploy checks confirmed the image identity, all Phase 1 and Phase 2 demo data,
 the desk pages and 26-page combined report generation.
 
+The Phase 3 release (`continuity360:phase3-20261120`) has verified pre-migration
+backups under `/home/zubair/continuity360-dev/backups/phase3-20261120T183200Z`; the
+replaced image is retained as `continuity360:rollback-phase3-20261120`. Post-deploy
+checks confirmed the image identity, the Enterprise subscription with GeeksOnTap
+branding, seat usage and all demo data including the AWS integration connection.
+
 ## Testing strategy
 
 This is a new mixed Desk UI/API application; there are no legacy test assets.
