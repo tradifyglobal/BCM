@@ -457,6 +457,13 @@ checksums. The replaced images are retained as rollback-tagged copies
 `continuity360:rollback-phase1-20261117d`).
 These releases' backups have not been restored in a separate drill.
 
+The Phase 2 release (`continuity360:phase2-20261120`, built from committed source via
+`git archive`) has pre-migration database and site-file backups with verified
+checksums under `/home/zubair/continuity360-dev/backups/phase2-20261120T163102Z`;
+the replaced image is retained as `continuity360:rollback-phase2-20261120`.
+Post-deploy checks confirmed the image identity, all Phase 1 and Phase 2 demo data,
+the desk pages and 26-page combined report generation.
+
 ## Testing strategy
 
 This is a new mixed Desk UI/API application; there are no legacy test assets.
