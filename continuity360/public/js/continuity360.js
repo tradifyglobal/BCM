@@ -42,6 +42,8 @@
         { label: "Compliance", items: [["Control Register", "C360 Compliance Control"]] },
         { label: "Administration", items: [
             ["Users", "User", "user"],
+            ["Email Accounts", "Email Account", "email-account"],
+            ["Email Queue", "Email Queue", "email-queue"],
             ["Subscription", "C360 Subscription", "c360-subscription"],
             ["Branding", "C360 Branding", "c360-branding"],
         ] },
