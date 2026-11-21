@@ -365,7 +365,10 @@ public and private file contents. This is not a production-ready deployment.
   Administration navigation group exposes Users, Subscription and Branding to
   authorised roles; the tenant administrator holds System Manager and creates users
   and sets their passwords from the Users list, subject to seat licensing. A
-  read-only demo account exists for public demonstrations.
+  read-only demo account exists for public demonstrations. A brand favicon (gradient
+  mark with the Continuity360 "C") replaces the Frappe icon in browser tabs across
+  desk, landing and login pages via the app logo hook, website context and Website
+  Settings.
 - Verification: 30 domain tests pass (plan entitlements, expiry fallback, seat
   limits, brand colour validation). A live UAT drill confirmed Starter blocks
   incident and infrastructure creation, Professional allows incidents but not
