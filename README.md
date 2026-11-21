@@ -384,7 +384,11 @@ public and private file contents. This is not a production-ready deployment.
   the public proxy chain is trusted, both `X-Forwarded-For` directives in the
   container nginx template pass the upstream header through, so Frappe rate-limits
   by originating client IP rather than lumping all visitors into the proxy's
-  address; the demo endpoint allows 20 submissions per hour per client.
+  address; the demo endpoint allows 20 submissions per hour per client. Queued
+  emails are dispatched immediately: an `Email Queue` after-insert hook
+  (`continuity360.email_dispatch`) enqueues a short-queue send as soon as the
+  transaction commits, so mail leaves within seconds instead of waiting for the
+  scheduler's once-per-minute flush (which remains as a retry safety net).
 - Verification: 30 domain tests pass (plan entitlements, expiry fallback, seat
   limits, brand colour validation). A live UAT drill confirmed Starter blocks
   incident and infrastructure creation, Professional allows incidents but not

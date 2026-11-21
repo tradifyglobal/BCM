@@ -81,4 +81,5 @@ doc_events = {
     "C360 Department": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Employee": {"validate": "continuity360.validation.validate_company_links"},
     "C360 Location": {"validate": "continuity360.validation.validate_company_links"},
+    "Email Queue": {"after_insert": "continuity360.email_dispatch.dispatch_immediately"},
 }
