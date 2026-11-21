@@ -4,9 +4,11 @@ app_publisher = "Continuity360"
 app_description = "Business continuity management and recovery intelligence"
 app_license = "Proprietary"
 app_home = "/desk/continuity360"
+# Guests landing on the site root get the marketing page; /login is the branded sign-in.
+home_page = "landing"
 
 # The version query forces browsers to refetch these unversioned assets after a release.
-ASSET_VERSION = "20261120-2"
+ASSET_VERSION = "20261120-3"
 app_include_js = [
     f"/assets/continuity360/js/continuity360.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/bcp_plan.js?v={ASSET_VERSION}",

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login to Continuity360</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#102d70;--blue:#2f80e6;--blue2:#245cd1;--ink:#1d2d3e;--mut:#5c6f84;--line:#dce5f2}
+body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(160deg,#102d70 0%,#153a8f 55%,#1d53c0 100%)}
+a{color:var(--blue2);text-decoration:none}
+.shell{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+.card{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(7,20,55,.45);width:100%;max-width:410px;padding:38px 36px 30px}
+.brand{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:700;color:var(--navy);justify-content:center;margin-bottom:6px}
+.brand .mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px}
+.brand span.x{color:var(--blue)}
+h1{font-size:16px;font-weight:600;text-align:center;color:var(--mut);margin-bottom:26px}
+label{display:block;font-size:12.5px;font-weight:600;color:var(--navy);margin:14px 0 5px;letter-spacing:.3px}
+input{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14.5px;outline:none;transition:border .15s}
+input:focus{border-color:var(--blue)}
+button{width:100%;margin-top:22px;padding:12px;border:none;border-radius:9px;background:var(--navy);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+button:hover{background:var(--blue2)}
+button:disabled{opacity:.6;cursor:wait}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:13px}
+.msg{display:none;margin-top:16px;padding:10px 12px;border-radius:8px;font-size:13px}
+.msg.err{display:block;background:#fdecec;color:#b3261e;border:1px solid #f6c8c5}
+.msg.ok{display:block;background:#eaf7ee;color:#1d7a35;border:1px solid #cfe9d9}
+.backlink{text-align:center;margin-top:20px;font-size:13px}
+footer{text-align:center;color:#b9ccf3;font-size:12.5px;padding:18px 12px 22px}
+footer b{color:#fff;font-weight:600}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="card">
+    <div class="brand"><span class="mark">C</span>Continuity<span class="x">360</span></div>
+    <h1>Login to Continuity360</h1>
+    <form id="loginform" autocomplete="on">
+      <label for="usr">Email</label>
+      <input id="usr" name="usr" type="email" placeholder="you@company.com" required autofocus autocomplete="username">
+      <label for="pwd">Password</label>
+      <input id="pwd" name="pwd" type="password" placeholder="Your password" required autocomplete="current-password">
+      <button id="loginbtn" type="submit">Sign in</button>
+      <div class="row">
+        <a href="#" id="forgot">Forgot password?</a>
+        <a href="/#demo">Request a demo</a>
+      </div>
+      <div class="msg" id="msg"></div>
+    </form>
+    <div class="backlink"><a href="/">&larr; Back to continuity360 home</a></div>
+  </div>
+</div>
+<footer><b>Developed by : Fayazuddin Zubair Mohammed</b><br>Continuity360 &mdash; business continuity, disaster recovery and crisis management.</footer>
+<script>
+(function () {
+    "use strict";
+    var redirectTo = "{{ redirect_to }}";
+    var form = document.getElementById("loginform");
+    var button = document.getElementById("loginbtn");
+    var message = document.getElementById("msg");
+
+    function show(kind, text) {
+        message.className = "msg " + kind;
+        message.textContent = text;
+    }
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        button.disabled = true;
+        show("ok", "Signing in...");
+        var body = "usr=" + encodeURIComponent(document.getElementById("usr").value.trim()) +
+                   "&pwd=" + encodeURIComponent(document.getElementById("pwd").value);
+        fetch("/api/method/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+            body: body,
+        }).then(function (response) {
+            if (response.ok) {
+                window.location.href = redirectTo;
+                return null;
+            }
+            return response.json().catch(function () { return {}; }).then(function (data) {
+                button.disabled = false;
+                var text = (data && data.message) || "Invalid email or password.";
+                if (response.status === 401) { text = "Invalid email or password."; }
+                if (response.status === 417) { text = "Too many attempts. Please wait a minute and try again."; }
+                show("err", text);
+            });
+        }).catch(function () {
+            button.disabled = false;
+            show("err", "Could not reach the server. Check your connection and try again.");
+        });
+    });
+
+    document.getElementById("forgot").addEventListener("click", function (event) {
+        event.preventDefault();
+        var user = document.getElementById("usr").value.trim();
+        if (!user) {
+            show("err", "Enter your email above first, then select Forgot password.");
+            return;
+        }
+        fetch("/api/method/frappe.core.doctype.user.user.reset_password?user=" +
+              encodeURIComponent(user), {headers: {"Accept": "application/json"}})
+            .then(function (response) {
+                if (response.ok) {
+                    show("ok", "If that account exists, a password reset email is on its way.");
+                } else {
+                    show("err", "Password reset is unavailable right now. Contact your administrator.");
+                }
+            })
+            .catch(function () {
+                show("err", "Password reset is unavailable right now. Contact your administrator.");
+            });
+    });
+})();
+</script>
+</body>
+</html>

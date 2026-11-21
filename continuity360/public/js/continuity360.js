@@ -40,6 +40,11 @@
             ["Outage Simulations", "C360 Outage Simulation"],
         ] },
         { label: "Compliance", items: [["Control Register", "C360 Compliance Control"]] },
+        { label: "Administration", items: [
+            ["Users", "User", "user"],
+            ["Subscription", "C360 Subscription", "c360-subscription"],
+            ["Branding", "C360 Branding", "c360-branding"],
+        ] },
         { label: "Reports", items: [
             ["Report Centre", null, "report-centre"],
             ["Management Overview", null, "continuity360"],
