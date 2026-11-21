@@ -13,7 +13,7 @@ DEFAULT_RECIPIENT = "zubair@geeksontap.ca"
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
-@rate_limit(limit=5, seconds=3600)
+@rate_limit(limit=20, seconds=3600)
 def submit(email: str, message: str = "") -> dict:
     email = (email or "").strip()
     validate_email_address(email, throw=True)

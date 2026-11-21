@@ -14,5 +14,11 @@ RUN sed -i 's/withCredentials: true,/withCredentials: true, transports: ["websoc
 
 USER root
 RUN sed -i 's|proxy_set_header Origin \$proxy_x_forwarded_proto://${FRAPPE_SITE_NAME_HEADER};|proxy_set_header Origin $http_origin;|' /templates/nginx/frappe.conf.template \
-    && grep -F 'proxy_set_header Origin $http_origin;' /templates/nginx/frappe.conf.template
+    && grep -F 'proxy_set_header Origin $http_origin;' /templates/nginx/frappe.conf.template \
+    # Pass the reverse proxy's X-Forwarded-For through unchanged so Frappe sees the real
+    # client address (rate limiting, logs). The template otherwise overwrites it with the
+    # immediate peer, which is always the reverse proxy.
+    && sed -i 's|proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;|proxy_set_header X-Forwarded-For $http_x_forwarded_for;|' /templates/nginx/frappe.conf.template \
+    && sed -i 's|proxy_set_header X-Forwarded-For \$remote_addr;|proxy_set_header X-Forwarded-For $http_x_forwarded_for;|' /templates/nginx/frappe.conf.template \
+    && test "$(grep -c 'proxy_set_header X-Forwarded-For \$http_x_forwarded_for;' /templates/nginx/frappe.conf.template)" -ge 2
 USER frappe
