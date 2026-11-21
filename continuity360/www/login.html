@@ -36,8 +36,8 @@ footer b{color:#fff;font-weight:600}
     <div class="brand"><span class="mark">C</span>Continuity<span class="x">360</span></div>
     <h1>Login to Continuity360</h1>
     <form id="loginform" autocomplete="on">
-      <label for="usr">Email</label>
-      <input id="usr" name="usr" type="email" placeholder="you@company.com" required autofocus autocomplete="username">
+      <label for="usr">Email or username</label>
+      <input id="usr" name="usr" type="text" placeholder="you@company.com or Administrator" required autofocus autocomplete="username">
       <label for="pwd">Password</label>
       <input id="pwd" name="pwd" type="password" placeholder="Your password" required autocomplete="current-password">
       <button id="loginbtn" type="submit">Sign in</button>
@@ -96,7 +96,7 @@ footer b{color:#fff;font-weight:600}
         event.preventDefault();
         var user = document.getElementById("usr").value.trim();
         if (!user) {
-            show("err", "Enter your email above first, then select Forgot password.");
+            show("err", "Enter your email or username above first, then select Forgot password.");
             return;
         }
         fetch("/api/method/frappe.core.doctype.user.user.reset_password?user=" +

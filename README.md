@@ -354,6 +354,18 @@ public and private file contents. This is not a production-ready deployment.
   and upserts applications, servers and database instances with provider-appropriate
   platforms, stamping the connection's last import time. Live credential-based
   polling is roadmap work and is labelled as such.
+- Public presence: guests at the site root see a professional marketing landing page
+  (hero, module grid, BCM cycle, Recovery Intelligence spotlight, compliance strip,
+  plan tiers and a demo-request call to action) with the developer credit
+  "Developed by : Fayazuddin Zubair Mohammed" in the footer. /login is a branded
+  "Login to Continuity360" card replacing the Frappe default; it accepts an email or
+  a plain username (so Administrator can sign in), posts to the standard login API,
+  sanitises redirect targets, offers password reset and carries the same footer
+  credit. Signed-in users visiting either page are redirected to the workspace. An
+  Administration navigation group exposes Users, Subscription and Branding to
+  authorised roles; the tenant administrator holds System Manager and creates users
+  and sets their passwords from the Users list, subject to seat licensing. A
+  read-only demo account exists for public demonstrations.
 - Verification: 30 domain tests pass (plan entitlements, expiry fallback, seat
   limits, brand colour validation). A live UAT drill confirmed Starter blocks
   incident and infrastructure creation, Professional allows incidents but not
@@ -558,6 +570,14 @@ backups under `/home/zubair/continuity360-dev/backups/phase3-20261120T183200Z`; 
 replaced image is retained as `continuity360:rollback-phase3-20261120`. Post-deploy
 checks confirmed the image identity, the Enterprise subscription with GeeksOnTap
 branding, seat usage and all demo data including the AWS integration connection.
+
+The public-presence release (`continuity360:phase3-20261120c` with the landing page,
+branded username-or-email login and Administration navigation) has verified backups
+under `/home/zubair/continuity360-dev/backups/` with the `phase3b-`/`phase3c-`
+prefixes and rollback-tagged predecessors. A first deploy attempt failed because
+`dev_setup.initialize` rejected the public `host_name`; the guard now returns early
+for completed sites and the deploy was repeated successfully. The Administrator
+password was resynchronised with `.secrets/admin_password`.
 
 ## Testing strategy
 
