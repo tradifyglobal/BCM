@@ -12,7 +12,7 @@ app_logo_url = "/assets/continuity360/images/favicon.svg"
 website_context = {"favicon": "/assets/continuity360/images/favicon.svg"}
 
 # The version query forces browsers to refetch these unversioned assets after a release.
-ASSET_VERSION = "20261120-3"
+ASSET_VERSION = "20261121-1"
 app_include_js = [
     f"/assets/continuity360/js/continuity360.js?v={ASSET_VERSION}",
     f"/assets/continuity360/js/bcp_plan.js?v={ASSET_VERSION}",
