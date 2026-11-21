@@ -1,0 +1,9 @@
+# Production/demo overlay: publishes the frontend on the UAT host's LAN address so
+# the reverse proxy at 192.168.50.21 can reach it. Apply together with compose.yaml:
+#   docker compose -p continuity360-dev -f compose.yaml -f publish-lan.yaml up -d frontend
+# Docker published ports bypass host firewalls; this exposes the site to the whole
+# LAN, which is acceptable for the internal demo segment only.
+services:
+  frontend:
+    ports:
+      - "192.168.50.30:18080:8080"

@@ -463,6 +463,28 @@ The pinned base image's `frappe` user has the `root` group; the application copy
 that existing group. These image-specific changes must be revalidated when upgrading
 Frappe.
 
+### Public demo hosting (bcm.geeksontap.ca)
+
+The UAT stack is published as a public demo at `https://bcm.geeksontap.ca`:
+
+- `publish-lan.yaml` additionally publishes the frontend on `192.168.50.30:18080`
+  for the reverse proxy. Apply it with every compose operation on UAT:
+  `docker compose -p continuity360-dev -f compose.yaml -f publish-lan.yaml up -d`.
+  Deploys that omit it will recreate the frontend without the LAN binding and take
+  the public demo offline (localhost access keeps working).
+- The nginx reverse proxy on 192.168.50.21 terminates TLS
+  (`/etc/nginx/sites-available/bcm.geeksontap.ca`): HTTP-01 ACME webroot at
+  `/var/www/certbot`, HTTP to HTTPS redirect, websocket upgrade headers and
+  `X-Forwarded-Proto https`, proxying to `http://192.168.50.30:18080`. The container
+  nginx pins `FRAPPE_SITE_NAME_HEADER`, so the public hostname serves the site
+  without a Frappe site rename; the site's `host_name` is set to the public URL.
+- The certificate is from Let's Encrypt (expires 2027-02-19) and renews through the
+  standard `certbot.timer`; renewals only need port 80 to stay forwarded to the proxy.
+- This is a demo exposure of a development-grade stack: the pre-launch gates
+  (independent security assessment, concurrency testing, public multi-tenant gateway
+  validation) remain outstanding, Docker's published port bypasses host firewalls on
+  the LAN segment, and demo credentials should be rotated if shared externally.
+
 ### Updating an existing development deployment
 
 Back up the site and database first. Copy the new source, rebuild the image, then:
