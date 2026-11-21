@@ -196,14 +196,77 @@ footer a:hover{color:#fff}
 <section class="ctasec" id="demo">
   <div class="wrap">
     <h2>See Continuity360 on your own scenario</h2>
-    <p>Book a guided demonstration with real data &mdash; from risk matrix to a simulated outage
-    walkthrough &mdash; or sign in to explore the live environment.</p>
-    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <a class="btn btn-light" href="mailto:zubair@geeksontap.ca?subject=Continuity360%20demo%20request&amp;body=Hello%2C%0A%0AI%20would%20like%20to%20book%20a%20Continuity360%20demo.%0A%0ACompany%3A%0AName%3A%0APhone%3A%0APreferred%20time%3A">Request a demo</a>
-      <a class="btn btn-lightghost" href="/login">Login to Continuity360</a>
-    </div>
+    <p>Tell us what you would like to see &mdash; from the risk matrix to a simulated outage
+    walkthrough &mdash; and we will set up a guided demonstration.</p>
+    <form id="demoform" style="max-width:520px;margin:0 auto;text-align:left">
+      <label for="demo-email" style="display:block;font-size:13px;font-weight:600;margin:14px 0 5px;color:#eaf1ff">Your email</label>
+      <input id="demo-email" type="email" required placeholder="you@company.com"
+             style="width:100%;padding:12px 14px;border:none;border-radius:9px;font-size:15px;outline:none">
+      <label for="demo-msg" style="display:block;font-size:13px;font-weight:600;margin:14px 0 5px;color:#eaf1ff">What would you like to see?</label>
+      <textarea id="demo-msg" required rows="4" maxlength="2000"
+                placeholder="Company, team size, and the scenarios you care about..."
+                style="width:100%;padding:12px 14px;border:none;border-radius:9px;font-size:14.5px;outline:none;resize:vertical;font-family:inherit"></textarea>
+      <button id="demo-send" type="submit" class="btn btn-light" style="width:100%;margin-top:18px;border:none">Send request</button>
+      <div id="demo-status" style="display:none;margin-top:14px;padding:11px 13px;border-radius:8px;font-size:14px"></div>
+    </form>
+    <div style="margin-top:26px"><a class="btn btn-lightghost" href="/login">Login to Continuity360</a></div>
   </div>
 </section>
+
+<script>
+(function () {
+    "use strict";
+    var form = document.getElementById("demoform");
+    var sendButton = document.getElementById("demo-send");
+    var status = document.getElementById("demo-status");
+
+    function show(ok, text) {
+        status.style.display = "block";
+        status.style.background = ok ? "#0e5e35" : "#8c2f28";
+        status.style.color = "#fff";
+        status.textContent = text;
+    }
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        sendButton.disabled = true;
+        sendButton.textContent = "Sending...";
+        var body = "email=" + encodeURIComponent(document.getElementById("demo-email").value.trim()) +
+                   "&message=" + encodeURIComponent(document.getElementById("demo-msg").value.trim());
+        fetch("/api/method/continuity360.demo_request.submit", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+            body: body,
+        }).then(function (response) {
+            sendButton.disabled = false;
+            sendButton.textContent = "Send request";
+            if (response.ok) {
+                form.reset();
+                show(true, "Thank you! Your demo request has been sent. We will reply to your email shortly.");
+                return;
+            }
+            if (response.status === 429) {
+                show(false, "Too many requests from this network. Please try again later.");
+                return;
+            }
+            response.json().then(function (data) {
+                var text = "Could not send the request. Check the email address and try again.";
+                try {
+                    var messages = JSON.parse(data._server_messages || "[]");
+                    if (messages.length) { text = JSON.parse(messages[0]).message || text; }
+                } catch (ignore) {}
+                show(false, text);
+            }).catch(function () {
+                show(false, "Could not send the request. Please try again later.");
+            });
+        }).catch(function () {
+            sendButton.disabled = false;
+            sendButton.textContent = "Send request";
+            show(false, "Could not reach the server. Check your connection and try again.");
+        });
+    });
+})();
+</script>
 
 <footer>
   <div class="wrap">
