@@ -368,7 +368,23 @@ public and private file contents. This is not a production-ready deployment.
   read-only demo account exists for public demonstrations. A brand favicon (gradient
   mark with the Continuity360 "C") replaces the Frappe icon in browser tabs across
   desk, landing and login pages via the app logo hook, website context and Website
-  Settings.
+  Settings. The navigation shell (top bar, sidebar, page head) is anchored to the
+  viewport top so content no longer scrolls behind a phantom navbar gap.
+- Demo requests: the landing page's "Request a demo" section is an inline form
+  (email plus message) posting to the guest-accessible, rate-limited
+  `continuity360.demo_request.submit` endpoint, which validates inputs and emails
+  the request through the site's default outgoing account to
+  `demo_request_recipient` from site config (falling back to
+  `bcmdemo@geeksontap.ca`), with reply-to set to the requester. The product's
+  Email Account "Continuity360" sends and receives as `bcmdemo@geeksontap.ca`;
+  the mail host is addressed as `mail.tradifyglobal.com` because the mail server's
+  TLS certificate only covers that name (both names resolve to the same server, and
+  recipients only ever see the geeksontap.ca address). Administration navigation
+  includes Email Accounts and Email Queue for configuring this in the UI. Because
+  the public proxy chain is trusted, both `X-Forwarded-For` directives in the
+  container nginx template pass the upstream header through, so Frappe rate-limits
+  by originating client IP rather than lumping all visitors into the proxy's
+  address; the demo endpoint allows 20 submissions per hour per client.
 - Verification: 30 domain tests pass (plan entitlements, expiry fallback, seat
   limits, brand colour validation). A live UAT drill confirmed Starter blocks
   incident and infrastructure creation, Professional allows incidents but not
@@ -581,6 +597,15 @@ prefixes and rollback-tagged predecessors. A first deploy attempt failed because
 `dev_setup.initialize` rejected the public `host_name`; the guard now returns early
 for completed sites and the deploy was repeated successfully. The Administrator
 password was resynchronised with `.secrets/admin_password`.
+
+Subsequent same-day releases (`phase3-20261120d` favicon, `phase3-20261121` top-bar
+anchoring, `phase3-20261121b` demo-request form with Email Accounts/Queue navigation,
+`phase3-20261121c` X-Forwarded-For passthrough and the relaxed demo rate limit, and
+`phase3-20261121d` with the `bcmdemo@geeksontap.ca` demo-request fallback) each have
+verified pre-migration backups under `/home/zubair/continuity360-dev/backups/` and
+rollback-tagged predecessor images. Demo-request delivery was verified end to end
+from the public site: the queued email left the "Continuity360" account as
+`bcmdemo@geeksontap.ca` with status Sent to `bcmdemo@geeksontap.ca`.
 
 ## Testing strategy
 

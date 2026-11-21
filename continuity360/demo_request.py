@@ -9,7 +9,7 @@ from frappe import _
 from frappe.rate_limiter import rate_limit
 from frappe.utils import escape_html, validate_email_address
 
-DEFAULT_RECIPIENT = "zubair@geeksontap.ca"
+DEFAULT_RECIPIENT = "bcmdemo@geeksontap.ca"
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
